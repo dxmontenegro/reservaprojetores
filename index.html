@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Recursos - Escola</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde: #2ecc71; --vermelho: #e74c3c; --azul: #3498db; --escuro: #2c3e50; --cinza: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--cinza); min-height: 100vh; color: var(--escuro); }
+        
+        /* AUTH CONTAINERS */
+        .auth-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .auth-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
+        .auth-card h2 { margin-bottom: 20px; font-size: 1.5rem; }
+        .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn-principal { width: 100%; padding: 12px; background: var(--escuro); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        .auth-links { margin-top: 20px; font-size: 0.9rem; }
+        .auth-links a { color: var(--azul); text-decoration: none; cursor: pointer; display: block; margin: 8px 0; }
+
+        /* TELA PRINCIPAL (SISTEMA) */
+        #tela-principal { display: none; }
+        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .btn-sair { background: #eee; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; }
+        
+        .controles { display: flex; flex-direction: column; gap: 10px; }
+        input[type="date"] { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .turno-selector { display: flex; gap: 5px; }
+        .turno-selector button { flex: 1; padding: 10px; border: 1px solid #ddd; background: white; border-radius: 8px; font-weight: bold; }
+        .turno-selector button.active { background: var(--escuro); color: white; }
+
+        /* Grade de Itens */
+        .recurso-card { background: white; margin: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .recurso-nome { padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; }
+        .grade-tempos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
+        .tempo-btn { height: 65px; border: none; border-radius: 8px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .tempo-btn:active { transform: scale(0.95); }
+        .tempo-btn span { font-size: 1.2rem; font-weight: bold; }
+        .tempo-btn small { font-size: 0.65rem; text-transform: uppercase; font-weight: bold; text-align: center; }
+        
+        .verde { background: var(--verde); }
+        .vermelho { background: var(--vermelho); }
+        .azul { background: var(--azul); }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; }
+        #chips-turmas { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; justify-content: center; }
+        .chip { padding: 10px 15px; border: 2px solid #eee; border-radius: 25px; background: white; font-weight: bold; cursor: pointer; }
+        .chip.selected { background: var(--escuro); color: white; border-color: var(--escuro); }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="area-auth" class="auth-container">
+        <div id="card-login" class="auth-card">
+            <h2>Entrar no Sistema</h2>
+            <input type="email" id="login-email" placeholder="E-mail Institucional">
+            <input type="password" id="login-senha" placeholder="Sua Senha">
+            <button class="btn-principal" onclick="fazerLogin()">Acessar</button>
+            <div class="auth-links">
+                <a onclick="mostrarTela('card-cadastro')">Não tem conta? Criar agora</a>
+                <a href="https://bdjqajzhlkdfagdfknmh.supabase.co/auth/v1/recover" target="_blank">Esqueci minha senha</a>
+            </div>
+        </div>
+
+        <div id="card-cadastro" class="auth-card" style="display:none">
+            <h2>Criar Conta</h2>
+            <input type="text" id="cad-nome" placeholder="Nome Completo">
+            <input type="email" id="cad-email" placeholder="E-mail">
+            <input type="password" id="cad-senha" placeholder="Senha (mín. 6 dígitos)">
+            <button class="btn-principal" onclick="criarConta()">Cadastrar</button>
+            <div class="auth-links">
+                <a onclick="mostrarTela('card-login')">Já tenho conta? Entrar</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="tela-principal">
+        <header>
+            <div class="header-top">
+                <span id="nome-prof"><strong>Carregando...</strong></span>
+                <button class="btn-sair" onclick="fazerLogout()">Sair</button>
+            </div>
+            <div class="controles">
+                <input type="date" id="data-selecionada">
+                <div class="turno-selector">
+                    <button id="btn-integral" class="active" onclick="setTurno('integral')">Integral</button>
+                    <button id="btn-noturno" onclick="setTurno('noturno')">Noturno</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="container-recursos"></div>
+    </div>
+
+    <div id="modal-reserva" class="modal">
+        <div class="modal-content">
+            <h3 id="m-titulo">Recurso</h3>
+            <p id="m-tempo">Tempo</p>
+            <div id="chips-turmas"></div>
+            <div class="modal-actions">
+                <button style="background:#eee" onclick="fecharModal()">Voltar</button>
+                <button style="background:var(--verde); color:white" onclick="salvarReserva()">Confirmar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CREDENCIAIS SUPABASE
+        const SB_URL = "https://bdjqajzhlkdfagdfknmh.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let turnoAtual = 'integral';
+        let dataAtual = new Date().toISOString().split('T')[0];
+        let itemSel = null, tempoSel = null, turmaSel = null;
+
+        const turmas = {
+            integral: ["1A", "1B", "1C", "2A", "2B", "2C", "3A", "3B", "Lab", "Pátio", "Outro"],
+            noturno: ["1D", "2D", "3C", "Lab", "Outro"]
+        };
+
+        // --- NAVEGAÇÃO DE TELAS ---
+        function mostrarTela(id) {
+            document.getElementById('card-login').style.display = 'none';
+            document.getElementById('card-cadastro').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        // --- AUTENTICAÇÃO ---
+        async function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-senha').value;
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) alert("Erro: " + error.message);
+            else checkUser();
+        }
+
+        async function criarConta() {
+            const nome = document.getElementById('cad-nome').value;
+            const email = document.getElementById('cad-email').value;
+            const password = document.getElementById('cad-senha').value;
+            if(!nome || !email || password.length < 6) return alert("Preencha os dados corretamente!");
+            
+            const { error } = await supabaseClient.auth.signUp({ 
+                email, 
+                password,
+                options: { data: { full_name: nome } }
+            });
+            if (error) alert(error.message);
+            else alert("Verifique seu e-mail para confirmar o cadastro!");
+        }
+
+        async function fazerLogout() {
+            await supabaseClient.auth.signOut();
+            checkUser();
+        }
+
+        async function checkUser() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                document.getElementById('area-auth').style.display = 'none';
+                document.getElementById('tela-principal').style.display = 'block';
+                document.getElementById('nome-prof').innerText = "Olá, " + (user.user_metadata.full_name || user.email);
+                document.getElementById('data-selecionada').value = dataAtual;
+                carregarDados();
+            } else {
+                document.getElementById('area-auth').style.display = 'flex';
+                document.getElementById('tela-principal').style.display = 'none';
+                mostrarTela('card-login');
+            }
+        }
+
+        // --- LÓGICA DO SISTEMA ---
+        async function carregarDados() {
+            const dataSel = document.getElementById('data-selecionada').value;
+            const { data: itens } = await supabaseClient.from('itens_escola').select('*').order('ordem_visual');
+            const { data: reservas } = await supabaseClient.from('reservas_recursos').select('*').eq('data_reserva', dataSel);
+            
+            const container = document.getElementById('container-recursos');
+            container.innerHTML = '';
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            itens.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'recurso-card';
+                let temposHtml = '';
+                const listaTempos = turnoAtual === 'integral' ? [1,2,3,4,5,6,7,8,9] : [1,2,3,4];
+
+                listaTempos.forEach(t => {
+                    const tBanco = turnoAtual === 'noturno' ? t + 9 : t;
+                    const res = reservas.find(r => r.item_id === item.id && r.tempo_aula === tBanco);
+                    let cor = 'verde', txt = 'Livre', acao = `abrirModal('${item.id}', '${item.nome}', ${tBanco}, ${t})`;
+
+                    if(res) {
+                        const eMeu = res.professor_id === user.id;
+                        cor = eMeu ? 'azul' : 'vermelho';
+                        txt = eMeu ? 'Sua Reserva' : res.nome_professor;
+                        acao = eMeu ? `cancelar('${res.id}')` : `alert('Ocupado por ${res.nome_professor} na ${res.turma_local}')`;
+                    }
+                    temposHtml += `<button class="tempo-btn ${cor}" onclick="${acao}"><span>${t}º</span><small>${txt}</small></button>`;
+                });
+
+                card.innerHTML = `<div class="recurso-nome">${item.nome}</div><div class="grade-tempos">${temposHtml}</div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function abrirModal(id, nome, tB, tV) {
+            itemSel = id; tempoSel = tB; turmaSel = null;
+            document.getElementById('m-titulo').innerText = nome;
+            document.getElementById('m-tempo').innerText = `${tV}º Tempo`;
+            const chips = document.getElementById('chips-turmas');
+            chips.innerHTML = '';
+            turmas[turnoAtual].forEach(t => {
+                chips.innerHTML += `<button class="chip" onclick="selTurma(this, '${t}')">${t}</button>`;
+            });
+            document.getElementById('modal-reserva').style.display = 'flex';
+        }
+
+        function selTurma(btn, t) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            turmaSel = t;
+        }
+
+        async function salvarReserva() {
+            if(!turmaSel) return alert("Selecione a turma!");
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('reservas_recursos').insert([{
+                item_id: itemSel, professor_id: user.id, nome_professor: user.user_metadata.full_name || user.email,
+                turma_local: turmaSel, data_reserva: document.getElementById('data-selecionada').value,
+                tempo_aula: tempoSel, turno: turnoAtual
+            }]);
+            if(error) alert("Este horário já foi ocupado!"); else { fecharModal(); carregarDados(); }
+        }
+
+        async function cancelar(id) {
+            if(confirm("Deseja cancelar esta reserva?")) {
+                await supabaseClient.from('reservas_recursos').delete().eq('id', id);
+                carregarDados();
+            }
+        }
+
+        function fecharModal() { document.getElementById('modal-reserva').style.display = 'none'; }
+        function setTurno(t) { 
+            turnoAtual = t; 
+            document.getElementById('btn-integral').classList.toggle('active', t === 'integral');
+            document.getElementById('btn-noturno').classList.toggle('active', t === 'noturno');
+            carregarDados(); 
+        }
+
+        document.getElementById('data-selecionada').onchange = carregarDados;
+        checkUser();
+    </script>
+</body>
+</html>
