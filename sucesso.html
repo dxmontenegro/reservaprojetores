@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sucesso - EEMTI Dragão do Mar</title>
+    <style>
+        :root { --escuro: #2c3e50; --azul: #3498db; --verde: #2ecc71; --cinza: #f4f7f6; --laranja: #e67e22; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: var(--cinza); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 90%;
+            margin-bottom: 80px;
+        }
+
+        .logo-escola { width: 140px; height: auto; margin-bottom: 15px; }
+        
+        h1 { color: var(--escuro); font-size: 1.4rem; margin-bottom: 10px; }
+        
+        .sucesso-icon {
+            color: var(--verde);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        p { color: #666; line-height: 1.4; margin-bottom: 25px; font-size: 0.95rem; }
+
+        /* Estilo dos Botões de Direcionamento */
+        .btn-link {
+            display: block;
+            padding: 15px;
+            margin: 10px 0;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .btn-eletivas { background: var(--azul); }
+        .btn-eletivas:hover { background: #2980b9; transform: scale(1.02); }
+
+        .btn-reserva { background: var(--laranja); }
+        .btn-reserva:hover { background: #d35400; transform: scale(1.02); }
+
+        footer {
+            background: var(--escuro);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="imagem1.png" alt="Logo EEMTI Dragão do Mar" class="logo-escola">
+        <div class="sucesso-icon">✓</div>
+        <h1>Senha Atualizada!</h1>
+        <p>Sua senha foi alterada com sucesso. Para qual sistema você deseja seguir agora?</p>
+        
+        <a href="https://eletifas.vercel.app/" class="btn-link btn-eletivas">
+            Frequência Eletivas / IFAS
+        </a>
+
+        <a href="https://reservaprojetores.vercel.app/" class="btn-link btn-reserva">
+            Reserva de Equipamentos e Ambientes
+        </a>
+    </div>
+
+    <footer>
+        Desenvolvido pelo L.E.I. - EEMTI DRAGÃO DO MAR
+    </footer>
+
+</body>
+</html>
