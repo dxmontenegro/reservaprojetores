@@ -6,23 +6,98 @@
     <title>Nova Senha - EEMTI Dragão do Mar</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }
-        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: #2c3e50; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 16px; }
+        :root { --verde: #2ecc71; --vermelho: #e74c3c; --azul: #3498db; --escuro: #2c3e50; --cinza: #f4f7f6; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: var(--cinza); 
+            min-height: 100vh; 
+            color: var(--escuro); 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 350px; 
+            text-align: center; 
+            margin-bottom: 80px; /* Espaço para o rodapé */
+        }
+
+        .logo-escola { width: 100px; height: auto; margin-bottom: 15px; }
+        .titulo-escola { font-size: 1.3rem; color: var(--escuro); margin: 0; font-weight: bold; }
+        .subtitulo { font-size: 0.9rem; color: #666; margin-bottom: 20px; }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 10px; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; 
+            box-sizing: border-box; 
+            font-size: 16px;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 20px; 
+            background: var(--escuro); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px; 
+            transition: 0.3s;
+        }
+
         button:hover { background: #1a252f; }
+
+        /* RODAPÉ DE CRÉDITOS */
+        footer {
+            background: var(--escuro);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
+
     <div class="box">
-        <h2 style="color:#2c3e50">Nova Senha</h2>
-        <p style="font-size:0.9rem; color:#666">Digite sua nova senha de acesso:</p>
+        <img src="imagem1.png" alt="Logo Escola" class="logo-escola">
+        <h1 class="titulo-escola">EEMTI DRAGÃO DO MAR</h1>
+        <p class="subtitulo">Redefinição de Senha</p>
+        
+        <p style="font-size:0.85rem; color:#444; text-align: left; margin-bottom: 5px;">Nova Senha:</p>
         <input type="password" id="n-senha" placeholder="Mínimo 6 caracteres">
+        
         <button onclick="salvar()">ATUALIZAR SENHA</button>
+        
+        <div style="margin-top: 15px;">
+            <a href="index.html" style="color: var(--azul); text-decoration: none; font-size: 0.85rem;">Voltar para o login</a>
+        </div>
     </div>
 
+    <footer>
+        Desenvolvido pelo L.E.I. - EEMTI DRAGÃO DO MAR
+    </footer>
+
     <script>
-        // Use a mesma Anon Key do seu arquivo index.html para evitar o erro de API Key
+        // Chaves do seu projeto atual
         const SB_URL = "https://bdjqajzhlkdfagdfknmh.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
         
@@ -35,7 +110,7 @@
                 return alert("A senha deve ter 6 ou mais caracteres.");
             }
 
-            // O updateUser funciona quando o usuário vem do link de recuperação enviado por e-mail
+            // O updateUser aplica a nova senha ao usuário que clicou no link do e-mail
             const { error } = await _supabase.auth.updateUser({ password: novaSenha });
 
             if(error) {
