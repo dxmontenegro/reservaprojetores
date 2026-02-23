@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Senha - EEMTI Dragão do Mar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #2c3e50; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #1a252f; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 style="color:#2c3e50">Nova Senha</h2>
+        <p style="font-size:0.9rem; color:#666">Digite sua nova senha de acesso:</p>
+        <input type="password" id="n-senha" placeholder="Mínimo 6 caracteres">
+        <button onclick="salvar()">ATUALIZAR SENHA</button>
+    </div>
+
+    <script>
+        // Use a mesma Anon Key do seu arquivo index.html para evitar o erro de API Key
+        const SB_URL = "https://bdjqajzhlkdfagdfknmh.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+        
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        async function salvar() {
+            const novaSenha = document.getElementById('n-senha').value;
+            
+            if(novaSenha.length < 6) {
+                return alert("A senha deve ter 6 ou mais caracteres.");
+            }
+
+            // O updateUser funciona quando o usuário vem do link de recuperação enviado por e-mail
+            const { error } = await _supabase.auth.updateUser({ password: novaSenha });
+
+            if(error) {
+                alert("Erro ao atualizar: " + error.message);
+            } else {
+                alert("Senha alterada com sucesso! Você será redirecionado para o login.");
+                window.location.href = "index.html"; 
+            }
+        }
+    </script>
+</body>
+</html>
