@@ -120,8 +120,8 @@
         let itemSel = null, tempoSel = null, turmaSel = null;
 
         const turmas = {
-            integral: ["1A", "1B", "1C", "2A", "2B", "2C", "3A", "3B", "Lab", "Pátio", "Outro"],
-            noturno: ["1D", "2D", "3C", "Lab", "Outro"]
+            integral: ["1ºA", "1ºB", "1ºC", "2ºA", "2ºB", "2ºC", "3ºA", "3B", "Lab", "MULTIMEIOS", "Outro"],
+            noturno: ["1ºD", "2ºD", "3ºC", "Lab", "Outro"]
         };
 
         // --- NAVEGAÇÃO DE TELAS ---
@@ -152,7 +152,7 @@
                 options: { data: { full_name: nome } }
             });
             if (error) alert(error.message);
-            else alert("Verifique seu e-mail para confirmar o cadastro!");
+            else alert("Cadastro criado com sucesso !");
         }
 
         async function fazerLogout() {
@@ -258,4 +258,5 @@
         checkUser();
     </script>
 </body>
+
 </html>
