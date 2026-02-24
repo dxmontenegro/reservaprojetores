@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Recursos - EEMTI Dragão do Mar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Fonte -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --verde: #16a34a;
+            --vermelho: #dc2626;
+            --azul: #2563eb;
+            --escuro: #0f172a;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --stroke-soft: rgba(148, 163, 184, 0.4);
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --radius-lg: 18px;
+            --radius-pill: 999px;
+            --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.16);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            color: var(--escuro);
+            background:
+              radial-gradient(circle at top, #e5edff 0, #f3f4f6 40%, #e5e7eb 100%);
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+        }
+
+        /* AUTENTICAÇÃO */
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .auth-card {
+            background:
+              radial-gradient(circle at top left, rgba(191, 219, 254, 0.6), transparent 60%),
+              linear-gradient(145deg, #ffffff, #f9fafb);
+            padding: 28px 26px 24px;
+            border-radius: 22px;
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background:
+              radial-gradient(circle at top right, rgba(34, 197, 94, 0.18), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.18), transparent 55%);
+            mix-blend-mode: screen;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .auth-card > * { position: relative; z-index: 1; }
+
+        .logo-escola {
+            width: 84px;
+            height: 84px;
+            border-radius: 22px;
+            margin-bottom: 16px;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.35);
+            object-fit: cover;
+        }
+
+        .titulo-escola {
+            font-size: 1.35rem;
+            color: var(--escuro);
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitulo-login {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin: 6px 0 18px;
+            font-weight: 500;
+        }
+
+        .field-wrapper {
+            width: 100%;
+            margin: 6px 0;
+            text-align: left;
+        }
+
+        .field-label {
+            font-size: 0.78rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .input-shell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 11px;
+            border-radius: var(--radius-pill);
+            background: #f9fafb;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, transform 0.08s ease;
+        }
+
+        .input-shell span.icon {
+            font-size: 1rem;
+            color: #9ca3af;
+            display: inline-flex;
+            width: 22px;
+            justify-content: center;
+        }
+
+        .input-shell input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            color: var(--escuro);
+            font-size: 0.9rem;
+        }
+
+        .input-shell input::placeholder { color: #9ca3af; }
+
+        .input-shell:focus-within {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow:
+              0 0 0 1px rgba(37, 99, 235, 0.4),
+              0 0 0 7px rgba(191, 219, 254, 0.9);
+            transform: translateY(-1px);
+        }
+
+        .btn-principal {
+            width: 100%;
+            padding: 11px;
+            background: linear-gradient(135deg, #2563eb, #22c55e);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 14px;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 16px 36px rgba(37, 99, 235, 0.55);
+            transition: transform 0.08s ease, box-shadow 0.18s ease, opacity 0.16s ease;
+        }
+
+        .btn-principal:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 46px rgba(37, 99, 235, 0.65);
+            opacity: 0.98;
+        }
+
+        .btn-principal:active {
+            transform: translateY(0);
+            box-shadow: 0 10px 26px rgba(37, 99, 235, 0.55);
+        }
+
+        .btn-principal span.icon { font-size: 1.05rem; }
+
+        .auth-links {
+            margin-top: 16px;
+            font-size: 0.86rem;
+            color: #6b7280;
+        }
+
+        .auth-links a {
+            color: #2563eb;
+            text-decoration: none;
+            cursor: pointer;
+            display: block;
+            margin: 4px 0;
+            font-weight: 500;
+        }
+
+        .auth-links a:hover { text-decoration: underline; }
+
+        /* TELA PRINCIPAL */
+
+        #tela-principal { display: none; }
+
+        header {
+            background: rgba(248, 250, 252, 0.96);
+            padding: 10px 14px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.16);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(209, 213, 219, 0.9);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .profile-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, #22c55e, #2563eb);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f9fafb;
+            box-shadow: 0 0 0 2px #e5e7eb;
+        }
+
+        #nome-prof {
+            font-size: 0.9rem;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .btn-sair {
+            background: #f9fafb;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #4b5563;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.16s ease, color 0.16s ease, transform 0.06s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        }
+
+        .btn-sair span.icon { font-size: 1rem; }
+
+        .btn-sair:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+            box-shadow: 0 10px 24px rgba(248, 113, 113, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .controles {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        input[type="date"] {
+            padding: 8px 10px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            border-radius: var(--radius-pill);
+            font-size: 0.9rem;
+            background: #ffffff;
+            color: #111827;
+            outline: none;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+        }
+
+        input[type="date"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+            background: #f9fafb;
+        }
+
+        .turno-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .turno-selector button {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            background: #f9fafb;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 0.86rem;
+            color: #6b7280;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.08s ease, box-shadow 0.18s ease;
+        }
+
+        .turno-selector button span.icon { font-size: 1rem; }
+
+        .turno-selector button.active {
+            background: linear-gradient(135deg, #22c55e, #bbf7d0);
+            color: #064e3b;
+            border-color: #22c55e;
+            box-shadow: 0 10px 24px rgba(34, 197, 94, 0.6);
+        }
+
+        .turno-selector button#btn-noturno.active {
+            background: linear-gradient(135deg, #2563eb, #bfdbfe);
+            color: #0f172a;
+            border-color: #2563eb;
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.6);
+        }
+
+        .turno-selector button:hover:not(.active) {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        /* RECURSOS */
+
+        #container-recursos {
+            padding: 14px 12px 18px;
+        }
+
+        .recurso-card {
+            background: var(--card);
+            margin: 10px 0;
+            border-radius: 20px;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            overflow: hidden;
+        }
+
+        .recurso-nome {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(229, 231, 235, 1);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recurso-nome span.icon {
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-pill);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: rgba(191, 219, 254, 0.9);
+            color: #1d4ed8;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+        }
+
+        .recurso-nome span.status-dot {
+            margin-left: auto;
+            width: 7px;
+            height: 7px;
+            border-radius: var(--radius-pill);
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+        }
+
+        .grade-tempos {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            padding: 10px 10px 14px;
+        }
+
+        @media (max-width: 640px) {
+            .grade-tempos {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .tempo-btn {
+            height: 80px;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.18s transform ease, 0.18s box-shadow ease, 0.18s filter ease, 0.18s opacity ease;
+            padding: 6px;
+            text-align: center;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.35);
+        }
+
+        .tempo-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.4);
+        }
+
+        .tempo-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.35);
+        }
+
+        .tempo-btn span {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .tempo-btn small {
+            font-size: 0.64rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+            opacity: 0.95;
+        }
+
+        .verde {
+            background: linear-gradient(135deg, #16a34a, #4ade80);
+        }
+
+        .vermelho {
+            background: linear-gradient(135deg, #dc2626, #f97373);
+        }
+
+        .azul {
+            background: linear-gradient(135deg, #2563eb, #60a5fa);
+        }
+
+        /* MODAL */
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.35);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-content {
+            background:
+              radial-gradient(circle at top left, rgba(191, 219, 254, 0.7), transparent 60%),
+              linear-gradient(145deg, #ffffff, #f9fafb);
+            width: 100%;
+            max-width: 420px;
+            padding: 22px 20px 18px;
+            border-radius: 22px;
+            text-align: center;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+            border: 1px solid rgba(209, 213, 219, 0.9);
+        }
+
+        .modal-content h3 {
+            margin: 0 0 4px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #111827;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .modal-content h3 span.icon {
+            font-size: 1.1rem;
+            color: #2563eb;
+        }
+
+        .modal-content p {
+            margin: 0;
+            font-size: 0.86rem;
+            color: #6b7280;
+        }
+
+        #chips-turmas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0 18px;
+            justify-content: center;
+        }
+
+        .chip {
+            padding: 7px 14px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            border-radius: var(--radius-pill);
+            background: #f9fafb;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.78rem;
+            color: #374151;
+            transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.08s ease, box-shadow 0.18s ease;
+        }
+
+        .chip:hover {
+            background: rgba(219, 234, 254, 1);
+            border-color: rgba(147, 197, 253, 1);
+        }
+
+        .chip.selected {
+            background: linear-gradient(135deg, #2563eb, #22c55e);
+            color: #f9fafb;
+            border-color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(37, 99, 235, 0.55);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 0.86rem;
+            cursor: pointer;
+            transition: transform 0.08s ease, box-shadow 0.18s ease, opacity 0.16s ease;
+        }
+
+        .modal-actions button:first-child {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+        }
+
+        .modal-actions button:first-child:hover {
+            box-shadow: 0 10px 24px rgba(148, 163, 184, 0.55);
+            transform: translateY(-1px);
+        }
+
+        .modal-actions button:last-child {
+            background: linear-gradient(135deg, #22c55e, #86efac);
+            color: #064e3b;
+            box-shadow: 0 14px 30px rgba(34, 197, 94, 0.7);
+        }
+
+        .modal-actions button:last-child:hover {
+            box-shadow: 0 20px 38px rgba(34, 197, 94, 0.8);
+            transform: translateY(-1px);
+        }
+
+        /* RODAPÉ */
+
+        footer {
+            background: #ffffff;
+            color: #6b7280;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 100;
+            border-top: 1px solid rgba(209, 213, 219, 0.9);
+        }
+
+        footer span { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+    <div id="area-auth" class="auth-container">
+        <div id="card-login" class="auth-card">
+            <img src="imagem1.png" alt="Logo Escola" class="logo-escola">
+            <h1 class="titulo-escola">EEMTI DRAGÃO DO MAR</h1>
+            <p class="subtitulo-login">Reserva de Recursos</p>
+
+            <div class="field-wrapper">
+                <div class="field-label">E-mail institucional</div>
+                <div class="input-shell">
+                    <span class="icon">📧</span>
+                    <input type="email" id="login-email" placeholder="seu.email@escola.ce.gov.br">
+                </div>
+            </div>
+
+            <div class="field-wrapper">
+                <div class="field-label">Senha</div>
+                <div class="input-shell">
+                    <span class="icon">🔒</span>
+                    <input type="password" id="login-senha" placeholder="Sua senha de acesso">
+                </div>
+            </div>
+
+            <button class="btn-principal" onclick="fazerLogin()">
+                <span class="icon">➡️</span>
+                Acessar
+            </button>
+            
+            <div class="auth-links">
+                <a onclick="mostrarTela('card-cadastro')">Não tem conta? Criar agora</a>
+                <a onclick="pedirRecuperacao()" style="color:#ea580c">Esqueci minha senha</a>
+            </div>
+        </div>
+
+        <div id="card-cadastro" class="auth-card" style="display:none">
+            <img src="imagem1.png" alt="Logo Escola" class="logo-escola">
+            <h1 class="titulo-escola">CRIAR CONTA</h1>
+            <p class="subtitulo-login">EEMTI DRAGÃO DO MAR</p>
+
+            <div class="field-wrapper">
+                <div class="field-label">Nome completo</div>
+                <div class="input-shell">
+                    <span class="icon">👤</span>
+                    <input type="text" id="cad-nome" placeholder="Seu nome completo">
+                </div>
+            </div>
+
+            <div class="field-wrapper">
+                <div class="field-label">E-mail</div>
+                <div class="input-shell">
+                    <span class="icon">📧</span>
+                    <input type="email" id="cad-email" placeholder="E-mail institucional">
+                </div>
+            </div>
+
+            <div class="field-wrapper">
+                <div class="field-label">Senha</div>
+                <div class="input-shell">
+                    <span class="icon">🔑</span>
+                    <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres">
+                </div>
+            </div>
+
+            <button class="btn-principal" onclick="criarConta()">
+                <span class="icon">✅</span>
+                Cadastrar
+            </button>
+            <div class="auth-links">
+                <a onclick="mostrarTela('card-login')">Já tenho conta? Entrar</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="tela-principal">
+        <header>
+            <div class="header-top">
+                <div class="profile-block">
+                    <div class="avatar-circle" id="avatar-iniciais">ED</div>
+                    <span id="nome-prof"><strong>Carregando...</strong></span>
+                </div>
+                <button class="btn-sair" onclick="fazerLogout()">
+                    <span class="icon">⏏️</span>
+                    Sair
+                </button>
+            </div>
+            <div class="controles">
+                <input type="date" id="data-selecionada">
+                <div class="turno-selector">
+                    <button id="btn-integral" class="active" onclick="setTurno('integral')">
+                        <span class="icon">☀️</span>
+                        Integral
+                    </button>
+                    <button id="btn-noturno" onclick="setTurno('noturno')">
+                        <span class="icon">🌙</span>
+                        Noturno
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div id="container-recursos"></div>
+    </div>
+
+    <div id="modal-reserva" class="modal">
+        <div class="modal-content">
+            <h3>
+                <span class="icon">🎯</span>
+                <span id="m-titulo">Recurso</span>
+            </h3>
+            <p id="m-tempo">Tempo</p>
+            <div id="chips-turmas"></div>
+            <div class="modal-actions">
+                <button onclick="fecharModal()">Voltar</button>
+                <button onclick="salvarReserva()">Confirmar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <span>Desenvolvido pelo L.E.I. - EEMTI DRAGÃO DO MAR</span>
+    </footer>
+
+    <script>
+        const SB_URL = "https://bdjqajzhlkdfagdfknmh.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let turnoAtual = 'integral';
+        let dataAtual = new Date().toISOString().split('T')[0];
+        let itemSel = null, tempoSel = null, turmaSel = null;
+
+        const turmas = {
+            integral: ["1ºA", "1ºB", "1ºC", "2ºA", "2ºB", "2ºC", "3ºA", "3B", "Lab", "MULTIMEIOS", "Outro"],
+            noturno: ["1ºD", "2ºD", "3ºC", "Lab", "Outro"]
+        };
+
+        async function pedirRecuperacao() {
+            const email = document.getElementById('login-email').value;
+            if (!email) return alert("Digite seu e-mail institucional no campo acima.");
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.href.replace('index.html', 'recuperar.html'),
+            });
+            if (error) alert("Erro: " + error.message);
+            else alert("E-mail de recuperação enviado!");
+        }
+
+        function mostrarTela(id) {
+            document.getElementById('card-login').style.display = 'none';
+            document.getElementById('card-cadastro').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-senha').value;
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) alert("Erro: " + error.message);
+            else checkUser();
+        }
+
+        async function criarConta() {
+            const nome = document.getElementById('cad-nome').value;
+            const email = document.getElementById('cad-email').value;
+            const password = document.getElementById('cad-senha').value;
+            if(!nome || !email || password.length < 6) return alert("Preencha os dados corretamente!");
+            const { error } = await supabaseClient.auth.signUp({ 
+                email, password, options: { data: { full_name: nome } }
+            });
+            if (error) alert(error.message);
+            else alert("Cadastro criado com sucesso!");
+        }
+
+        async function fazerLogout() { await supabaseClient.auth.signOut(); checkUser(); }
+
+        function gerarIniciais(nomeOuEmail) {
+            if (!nomeOuEmail) return "ED";
+            const base = nomeOuEmail.split("@")[0];
+            const partes = base.split(/[.\s_-]+/).filter(Boolean);
+            if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
+            return base.slice(0, 2).toUpperCase();
+        }
+
+        async function checkUser() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                document.getElementById('area-auth').style.display = 'none';
+                document.getElementById('tela-principal').style.display = 'block';
+
+                const nomeBase = user.user_metadata.full_name || user.email;
+                document.getElementById('nome-prof').innerText = "Olá, " + nomeBase;
+                document.getElementById('avatar-iniciais').innerText = gerarIniciais(nomeBase);
+
+                document.getElementById('data-selecionada').value = dataAtual;
+                carregarDados();
+            } else {
+                document.getElementById('area-auth').style.display = 'flex';
+                document.getElementById('tela-principal').style.display = 'none';
+                mostrarTela('card-login');
+            }
+        }
+
+        async function carregarDados() {
+            const dataSel = document.getElementById('data-selecionada').value;
+            const { data: itens } = await supabaseClient.from('itens_escola').select('*').order('ordem_visual');
+            const { data: reservas } = await supabaseClient.from('reservas_recursos').select('*').eq('data_reserva', dataSel);
+            
+            const container = document.getElementById('container-recursos');
+            container.innerHTML = '';
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            itens.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'recurso-card';
+                let temposHtml = '';
+                const listaTempos = turnoAtual === 'integral' ? [1,2,3,4,5,6,7,8,9] : [1,2,3,4];
+
+                listaTempos.forEach(t => {
+                    const tBanco = turnoAtual === 'noturno' ? t + 9 : t;
+                    const res = reservas.find(r => r.item_id === item.id && r.tempo_aula === tBanco);
+                    let cor = 'verde', txt = 'Livre', acao = `abrirModal('${item.id}', '${item.nome}', ${tBanco}, ${t})`;
+
+                    if(res) {
+                        const eMeu = res.professor_id === user.id;
+                        cor = eMeu ? 'azul' : 'vermelho';
+                        txt = eMeu ? 'Sua Reserva' : res.nome_professor;
+                        acao = eMeu ? `cancelar('${res.id}')` : `alert('Ocupado por ${res.nome_professor} na ${res.turma_local}')`;
+                    }
+                    temposHtml += `<button class="tempo-btn ${cor}" onclick="${acao}"><span>${t}º Tempo</span><small>${txt}</small></button>`;
+                });
+
+                card.innerHTML = `
+                  <div class="recurso-nome">
+                    <span class="icon">📽️</span>
+                    <span>${item.nome}</span>
+                    <span class="status-dot"></span>
+                  </div>
+                  <div class="grade-tempos">${temposHtml}</div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function abrirModal(id, nome, tB, tV) {
+            itemSel = id; tempoSel = tB; turmaSel = null;
+            document.getElementById('m-titulo').innerText = nome;
+            document.getElementById('m-tempo').innerText = `${tV}º Tempo`;
+            const chips = document.getElementById('chips-turmas');
+            chips.innerHTML = '';
+            turmas[turnoAtual].forEach(t => {
+                chips.innerHTML += `<button class="chip" onclick="selTurma(this, '${t}')">${t}</button>`;
+            });
+            document.getElementById('modal-reserva').style.display = 'flex';
+        }
+
+        function selTurma(btn, t) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            turmaSel = t;
+        }
+
+        async function salvarReserva() {
+            if(!turmaSel) return alert("Selecione a turma!");
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('reservas_recursos').insert([{
+                item_id: itemSel, professor_id: user.id, nome_professor: user.user_metadata.full_name || user.email,
+                turma_local: turmaSel, data_reserva: document.getElementById('data-selecionada').value,
+                tempo_aula: tempoSel, turno: turnoAtual
+            }]);
+            if(error) alert("Este horário já foi ocupado!"); else { fecharModal(); carregarDados(); }
+        }
+
+        async function cancelar(id) {
+            if(confirm("Deseja cancelar esta reserva?")) {
+                await supabaseClient.from('reservas_recursos').delete().eq('id', id);
+                carregarDados();
+            }
+        }
+
+        function fecharModal() { document.getElementById('modal-reserva').style.display = 'none'; }
+
+        function setTurno(t) { 
+            turnoAtual = t; 
+            document.getElementById('btn-integral').classList.toggle('active', t === 'integral');
+            document.getElementById('btn-noturno').classList.toggle('active', t === 'noturno');
+            carregarDados(); 
+        }
+
+        document.getElementById('data-selecionada').onchange = carregarDados;
+        checkUser();
+    </script>
+</body>
+</html>
