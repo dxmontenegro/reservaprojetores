@@ -1031,6 +1031,7 @@ ambientes.forEach(item => {
         function fecharModal() { document.getElementById('modal-reserva').style.display = 'none'; }
 
         function mostrarAvisoReserva(nome, turma) {
+            tocarSomBloqueio();
     const texto = `
         📌 Ocupado por <strong>${nome}</strong><br>
         🏫 Turma: <strong>${turma}</strong><br><br>
@@ -1044,7 +1045,11 @@ ambientes.forEach(item => {
 function fecharAviso() {
     document.getElementById('aviso-reserva').style.display = 'none';
 }
-
+function tocarSomBloqueio() {
+    const audio = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    audio.volume = 0.4;
+    audio.play();
+}
 
 
         function setTurno(t) { 
