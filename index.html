@@ -1021,12 +1021,9 @@ ambientes.forEach(item => {
             if(error) alert("Este horário já foi ocupado!"); else { fecharModal(); carregarDados(); }
         }
 
-        async function cancelar(id) {
-            if(confirm("Deseja cancelar esta reserva?")) {
-                await supabaseClient.from('reservas_recursos').delete().eq('id', id);
-                carregarDados();
-            }
-        }
+       async function cancelar(id) {
+    abrirConfirmCancelamento(id);
+}
 
         function fecharModal() { document.getElementById('modal-reserva').style.display = 'none'; }
 
@@ -1049,6 +1046,31 @@ function tocarSomBloqueio() {
     const audio = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
     audio.volume = 0.4;
     audio.play();
+}
+
+let idCancelamento = null;
+
+function abrirConfirmCancelamento(id) {
+    idCancelamento = id;
+    tocarSomBloqueio();
+    document.getElementById('confirm-cancelar').style.display = 'flex';
+}
+
+function fecharConfirmCancelamento() {
+    document.getElementById('confirm-cancelar').style.display = 'none';
+    idCancelamento = null;
+}
+
+async function confirmarCancelamento() {
+    if (!idCancelamento) return;
+
+    await supabaseClient
+        .from('reservas_recursos')
+        .delete()
+        .eq('id', idCancelamento);
+
+    fecharConfirmCancelamento();
+    carregarDados();
 }
 
 
@@ -1074,4 +1096,28 @@ function tocarSomBloqueio() {
         <button onclick="fecharAviso()">OK</button>
     </div>
 </div>
+
+<div id="confirm-cancelar" class="aviso-box">
+    <div class="aviso-content">
+        <div class="aviso-header">
+            <span>⚠️</span>
+            <strong>Cancelar Reserva</strong>
+        </div>
+
+        <p>
+            Deseja realmente cancelar esta reserva?<br><br>
+            
+        </p>
+
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button onclick="fecharConfirmCancelamento()">Voltar</button>
+            <button onclick="confirmarCancelamento()" style="background:#7f1d1d; border-color:#991b1b;">
+                Cancelar Reserva
+            </button>
+        </div>
+    </div>
+</div>
+
+
+</body>
 </html>
