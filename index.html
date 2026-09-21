@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Recursos - EEMTI Dragão do Mar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Fonte -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --verde: #55f28a;
+            --vermelho: #ff526a;
+            --azul: #32c5ff;
+            --escuro: #e7f7ee;
+            --bg: #02080d;
+            --card: #071822;
+            --stroke-soft: rgba(111, 237, 169, 0.22);
+            --accent: #55f28a;
+            --accent-soft: rgba(85, 242, 138, 0.12);
+            --radius-lg: 6px;
+            --radius-pill: 4px;
+            --shadow-soft: 0 18px 42px rgba(0, 0, 0, 0.45);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "JetBrains Mono", "Courier New", monospace;
+            margin: 0;
+            min-height: 100vh;
+            color: var(--escuro);
+            background:
+                radial-gradient(circle at 50% -10%, rgba(15, 102, 94, 0.36), transparent 34%),
+                linear-gradient(135deg, #02070c 0%, #06131b 48%, #02070c 100%);
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            z-index: -1;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.22;
+            background-image:
+                linear-gradient(rgba(85, 242, 138, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(85, 242, 138, 0.1) 1px, transparent 1px);
+            background-size: 38px 38px;
+            mask-image: linear-gradient(to bottom, black, transparent 80%);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            pointer-events: none;
+            opacity: 0.06;
+            background: repeating-linear-gradient(0deg, transparent 0 3px, #fff 4px 5px);
+        }
+
+        /* INICIALIZAÇÃO DOS */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #010406;
+            color: #55f28a;
+        }
+
+        #splash-screen.fade-out { animation: splashFadeOut 0.72s ease forwards; }
+        @keyframes splashFadeOut { to { opacity: 0; visibility: hidden; } }
+
+        .splash-logo-wrapper { display: none; }
+        .neon-ring { display: none; }
+
+        .splash-byline {
+            width: min(900px, 100%);
+            min-height: min(460px, 68vh);
+            margin: 0;
+            padding: clamp(18px, 4vw, 38px);
+            overflow: hidden;
+            white-space: pre-wrap;
+            border: 1px solid rgba(85, 242, 138, 0.65);
+            box-shadow: 0 0 0 5px rgba(85, 242, 138, 0.04), 0 0 42px rgba(85, 242, 138, 0.17);
+            background: linear-gradient(145deg, rgba(5, 25, 20, 0.96), rgba(1, 7, 10, 0.98));
+            font-family: "JetBrains Mono", monospace;
+            font-size: clamp(0.72rem, 2.25vw, 1rem);
+            line-height: 1.8;
+            letter-spacing: 0.015em;
+            text-shadow: 0 0 9px rgba(85, 242, 138, 0.48);
+        }
+
+        .splash-cursor {
+            display: inline-block;
+            width: 0.64em;
+            height: 1.05em;
+            margin-left: 3px;
+            vertical-align: -0.18em;
+            background: #55f28a;
+            box-shadow: 0 0 10px #55f28a;
+            animation: blink 0.75s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* AUTENTICAÇÃO */
+        .auth-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 16px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 30px 28px 26px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--stroke-soft);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(145deg, rgba(10, 37, 45, 0.96), rgba(3, 13, 20, 0.98));
+            box-shadow: var(--shadow-soft), inset 0 1px rgba(255,255,255,0.05);
+        }
+
+        .auth-card::before {
+            content: "AUTH_TERMINAL::SECURE_ACCESS";
+            display: block;
+            margin: -30px -28px 24px;
+            padding: 10px 14px;
+            text-align: left;
+            color: #061009;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            background: var(--verde);
+        }
+        .auth-card > * { position: relative; z-index: 1; }
+
+        .logo-escola {
+            width: 78px;
+            height: 78px;
+            margin-bottom: 14px;
+            padding: 5px;
+            object-fit: contain;
+            border: 1px solid var(--verde);
+            border-radius: 4px;
+            background: #e8fff0;
+            box-shadow: 0 0 18px rgba(85, 242, 138, .24);
+        }
+
+        .titulo-escola {
+            margin: 0;
+            color: #f1fff5;
+            font-family: "Orbitron", "JetBrains Mono", monospace;
+            font-size: clamp(1.05rem, 4.5vw, 1.4rem);
+            letter-spacing: .06em;
+        }
+        .subtitulo-login { margin: 8px 0 22px; color: #8eb9a0; font-size: .82rem; }
+        .field-wrapper { width: 100%; margin: 11px 0; text-align: left; }
+        .field-label { margin-bottom: 6px; color: #a7c8b3; font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; }
+
+        .input-shell {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 12px;
+            border: 1px solid rgba(167, 200, 179, .28);
+            border-radius: 3px;
+            background: rgba(1, 7, 11, .72);
+            transition: .18s ease;
+        }
+        .input-shell span.icon { width: 20px; color: var(--verde); font-size: .95rem; filter: grayscale(.2); }
+        .input-shell input { width: 100%; border: none; outline: none; color: #edfff4; background: transparent; font: inherit; font-size: .86rem; }
+        .input-shell input::placeholder { color: #668173; }
+        .input-shell:focus-within { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(50,197,255,.12), 0 0 16px rgba(50,197,255,.15); transform: translateY(-1px); }
+
+        .btn-principal {
+            width: 100%;
+            margin-top: 17px;
+            padding: 12px;
+            border: 1px solid var(--verde);
+            border-radius: 3px;
+            color: #04130a;
+            background: var(--verde);
+            font: 700 .82rem "JetBrains Mono", monospace;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+        .btn-principal:hover { color: #eafff0; background: transparent; box-shadow: 0 0 20px rgba(85,242,138,.25); transform: translateY(-1px); }
+        .btn-principal:active { transform: translateY(0); }
+        .btn-principal span.icon { margin-right: 6px; }
+        .auth-links { margin-top: 17px; font-size: .78rem; color: #8eb9a0; }
+        .auth-links a { display: block; margin: 8px 0; color: var(--azul); text-decoration: none; cursor: pointer; }
+        .auth-links a:hover { color: var(--verde); text-decoration: underline; }
+
+        /* TELA PRINCIPAL */
+        #tela-principal { display: none; }
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 13px 16px 15px;
+            border-bottom: 1px solid rgba(85,242,138,.24);
+            background: rgba(3, 15, 22, .9);
+            box-shadow: 0 10px 28px rgba(0,0,0,.35);
+            backdrop-filter: blur(14px);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 13px; }
+        .profile-block { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .avatar-circle { width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; border: 1px solid var(--verde); border-radius: 3px; color: var(--verde); background: rgba(85,242,138,.08); font-size: .78rem; font-weight: 700; box-shadow: 0 0 14px rgba(85,242,138,.15); }
+        #nome-prof { overflow: hidden; color: #e8fff0; font-size: .8rem; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-sair { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid rgba(255,82,106,.65); border-radius: 3px; color: #ff9baa; background: rgba(255,82,106,.07); font: 600 .72rem "JetBrains Mono", monospace; cursor: pointer; transition: .18s ease; }
+        .btn-sair:hover { color: #fff; background: var(--vermelho); box-shadow: 0 0 16px rgba(255,82,106,.25); }
+        .controles { display: flex; flex-direction: column; gap: 9px; }
+        input[type="date"] { width: 100%; padding: 9px 11px; border: 1px solid rgba(167,200,179,.28); border-radius: 3px; outline: none; color: #e8fff0; background: #06131b; font: .82rem "JetBrains Mono", monospace; color-scheme: dark; }
+        input[type="date"]:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(50,197,255,.12); }
+        .turno-selector { display: flex; gap: 8px; }
+        .turno-selector button { flex: 1; padding: 9px 10px; border: 1px solid rgba(167,200,179,.28); border-radius: 3px; color: #a7c8b3; background: rgba(6,19,27,.85); font: 700 .75rem "JetBrains Mono", monospace; cursor: pointer; transition: .18s ease; }
+        .turno-selector button.active { border-color: var(--verde); color: #031008; background: var(--verde); box-shadow: 0 0 15px rgba(85,242,138,.18); }
+        .turno-selector button#btn-noturno.active { border-color: var(--azul); color: #021017; background: var(--azul); box-shadow: 0 0 15px rgba(50,197,255,.18); }
+        .turno-selector button:hover:not(.active) { border-color: var(--verde); color: var(--verde); }
+
+        /* RECURSOS */
+        #container-recursos { width: min(1100px, 100%); margin: 0 auto; padding: 18px 13px 28px; }
+        .secao { margin: 23px 0 10px; color: var(--verde); font-family: "Orbitron", "JetBrains Mono", monospace; font-size: .92rem; letter-spacing: .07em; text-transform: uppercase; }
+        .secao::after { content: ""; display: block; width: 100%; height: 1px; margin-top: 8px; background: linear-gradient(90deg, rgba(85,242,138,.7), transparent); }
+        .recurso-card { margin: 12px 0; overflow: hidden; border: 1px solid var(--stroke-soft); border-radius: 5px; background: linear-gradient(145deg, rgba(10,33,41,.94), rgba(3,13,20,.95)); box-shadow: 0 12px 26px rgba(0,0,0,.25); }
+        .recurso-nome { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid rgba(167,200,179,.13); color: #e9fff1; font-size: .85rem; font-weight: 700; }
+        .recurso-nome span.icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 3px !important; font-size: 1.08rem; }
+        .recurso-nome .status-dot { width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: var(--verde); box-shadow: 0 0 0 4px rgba(85,242,138,.12), 0 0 10px var(--verde); }
+        .grade-tempos { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; padding: 11px; }
+        .tempo-btn { min-height: 78px; padding: 7px; border: 1px solid transparent; border-radius: 3px; color: #eefcf2; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-family: "JetBrains Mono", monospace; transition: .18s ease; box-shadow: inset 0 1px rgba(255,255,255,.07); }
+        .tempo-btn:hover { transform: translateY(-2px); filter: brightness(1.15); box-shadow: 0 9px 20px rgba(0,0,0,.32); }
+        .tempo-btn span { margin-bottom: 5px; font-size: .79rem; font-weight: 700; }
+        .tempo-btn small { max-width: 100%; overflow: hidden; font-size: .6rem; font-weight: 600; text-align: center; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+        .verde { border-color: rgba(85,242,138,.55); background: linear-gradient(145deg,#0c5f3d,#074029); }
+        .vermelho { border-color: rgba(255,82,106,.65); background: linear-gradient(145deg,#842534,#51151f); }
+        .azul { border-color: rgba(50,197,255,.65); background: linear-gradient(145deg,#0c5d7c,#09374e); }
+
+        /* MODAIS */
+        .modal, .aviso-box { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(0,5,8,.72); backdrop-filter: blur(8px); }
+        .modal-content, .aviso-content { width: 100%; max-width: 450px; padding: 24px 21px 20px; text-align: center; border: 1px solid var(--stroke-soft); border-radius: 5px; color: #e8fff0; background: linear-gradient(145deg,#0a2530,#041019); box-shadow: 0 24px 56px rgba(0,0,0,.55); }
+        .modal-content h3 { margin: 0 0 7px; color: var(--verde); font-family: "Orbitron", "JetBrains Mono", monospace; font-size: 1rem; }
+        .modal-content p, .aviso-content p { color: #a7c8b3; font-size: .8rem; line-height: 1.55; }
+        #chips-turmas { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px 0; }
+        .chip { padding: 8px 12px; border: 1px solid rgba(167,200,179,.3); border-radius: 3px; color: #d7f2df; background: rgba(1,8,12,.65); font: 600 .73rem "JetBrains Mono", monospace; cursor: pointer; transition: .15s; }
+        .chip:hover, .chip.selected { border-color: var(--verde); color: #051209; background: var(--verde); }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions button, .aviso-content button { flex: 1; padding: 10px; border: 1px solid rgba(167,200,179,.32); border-radius: 3px; color: #c8e6d0; background: #0a2029; font: 700 .73rem "JetBrains Mono", monospace; cursor: pointer; transition: .16s; }
+        .modal-actions button:last-child { border-color: var(--verde); color: #031108; background: var(--verde); }
+        .modal-actions button:hover, .aviso-content button:hover { transform: translateY(-1px); filter: brightness(1.12); }
+        .aviso-content { max-width: 380px; }
+        .aviso-header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; color: #ff8b9b; font-family: "Orbitron", "JetBrains Mono", monospace; font-size: .95rem; }
+        .aviso-content strong { color: var(--azul); }
+        .aviso-piscando { color: #ff8b9b; font-size: .72rem; animation: piscar 1s infinite; }
+        @keyframes piscar { 50% { opacity: .22; } }
+
+        /* RODAPÉ */
+        footer { position: fixed; z-index: 100; bottom: 0; width: 100%; padding: 10px; border-top: 1px solid rgba(85,242,138,.2); color: #87a995; background: rgba(3,15,22,.93); text-align: center; font-size: .68rem; backdrop-filter: blur(10px); }
+
+        @media (min-width: 760px) {
+            header { padding: 14px max(28px, calc((100vw - 1040px)/2)); }
+            .controles { flex-direction: row; }
+            input[type="date"] { max-width: 240px; }
+            .turno-selector { flex: 1; max-width: 420px; }
+            .grade-tempos { grid-template-columns: repeat(5,minmax(0,1fr)); }
+        }
+        @media (max-width: 640px) { .grade-tempos { grid-template-columns: repeat(2,minmax(0,1fr)); } .auth-card { padding: 26px 18px 22px; } .auth-card::before { margin: -26px -18px 21px; } }
+    </style>
+</head>
+<body>
+
+        <!-- SPLASH SCREEN -->
+    <div id="splash-screen" aria-live="polite" aria-label="Inicialização do sistema">
+        <pre class="splash-byline" id="splash-byline"><span class="splash-cursor"></span></pre>
+    </div>
+
+    <div id="area-auth" class="auth-container">
+        <div id="card-login" class="auth-card">
+            <img src="imagem1.png" alt="Logo Escola" class="logo-escola">
+            <h1 class="titulo-escola">EEMTI DRAGÃO DO MAR</h1>
+            <p class="subtitulo-login">Reserva de Recursos</p>
+
+            <div class="field-wrapper">
+                <div class="field-label">E-mail institucional</div>
+                <div class="input-shell">
+                    <span class="icon">📧</span>
+                    <input type="email" id="login-email" placeholder="seu.email@prof.ce.gov.br">
+                </div>
+            </div>
+
+            <div class="field-wrapper">
+                <div class="field-label">Senha</div>
+                <div class="input-shell">
+                    <span class="icon">🔒</span>
+                    <input type="password" id="login-senha" placeholder="Sua senha de acesso">
+                </div>
+            </div>
+
+            <button class="btn-principal" onclick="fazerLogin()">
+                <span class="icon">➡️</span>
+                Acessar
+            </button>
+            
+            <div class="auth-links">
+                <a onclick="mostrarTela('card-cadastro')">Não tem conta? Criar agora</a>
+                <a onclick="pedirRecuperacao()" style="color:#ea580c">Esqueci minha senha</a>
+            </div>
+        </div>
+
+        <div id="card-cadastro" class="auth-card" style="display:none">
+            <img src="imagem1.png" alt="Logo Escola" class="logo-escola">
+            <h1 class="titulo-escola">CRIAR CONTA</h1>
+            <p class="subtitulo-login">EEMTI DRAGÃO DO MAR</p>
+
+            <div class="field-wrapper">
+                <div class="field-label">Nome completo</div>
+                <div class="input-shell">
+                    <span class="icon">👤</span>
+                    <input type="text" id="cad-nome" placeholder="Seu nome completo">
+                </div>
+            </div>
+
+            <div class="field-wrapper">
+                <div class="field-label">E-mail</div>
+                <div class="input-shell">
+                    <span class="icon">📧</span>
+                    <input type="email" id="cad-email" placeholder="E-mail institucional">
+                </div>
+            </div>
+
+            <div class="field-wrapper">
+                <div class="field-label">Senha</div>
+                <div class="input-shell">
+                    <span class="icon">🔑</span>
+                    <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres">
+                </div>
+            </div>
+
+            <button class="btn-principal" onclick="criarConta()">
+                <span class="icon">✅</span>
+                Cadastrar
+            </button>
+            <div class="auth-links">
+                <a onclick="mostrarTela('card-login')">Já tenho conta? Entrar</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="tela-principal">
+        <header>
+            <div class="header-top">
+                <div class="profile-block">
+                    <div class="avatar-circle" id="avatar-iniciais">ED</div>
+                    <span id="nome-prof"><strong>Carregando...</strong></span>
+                </div>
+                <button class="btn-sair" onclick="fazerLogout()">
+                    <span class="icon">⏏️</span>
+                    Sair
+                </button>
+            </div>
+            <div class="controles">
+                <input type="date" id="data-selecionada">
+                <div class="turno-selector">
+                    <button id="btn-integral" class="active" onclick="setTurno('integral')">
+                        <span class="icon">☀️</span>
+                        Integral
+                    </button>
+                    <button id="btn-noturno" onclick="setTurno('noturno')">
+                        <span class="icon">🌙</span>
+                        Noturno
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div id="container-recursos"></div>
+    </div>
+
+    <div id="modal-reserva" class="modal">
+        <div class="modal-content">
+            <h3>
+                <span class="icon">🎯</span>
+                <span id="m-titulo">Recurso</span>
+            </h3>
+            <p id="m-tempo">Tempo</p>
+            <div id="chips-turmas"></div>
+            <div class="modal-actions">
+                <button onclick="fecharModal()">Voltar</button>
+                <button onclick="salvarReserva()">Confirmar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <span>⚙️ EEMTI DRAGÃO DO MAR - ⚡D.S.Montenegro</span>
+    </footer>
+
+    <script>
+        const SB_URL = "https://bdjqajzhlkdfagdfknmh.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let turnoAtual = 'integral';
+        let dataAtual = new Date().toISOString().split('T')[0];
+        let itemSel = null, tempoSel = null, turmaSel = null;
+
+        const turmas = {
+            integral: ["1ºA", "1ºB", "1ºC", "2ºA", "2ºB", "2ºC", "3ºA", "3B", "Lab", "MULTIMEIOS", "Outro"],
+            noturno: ["1ºD", "2ºD", "3ºC", "Lab", "Outro"]
+        };
+
+        async function pedirRecuperacao() {
+            const email = document.getElementById('login-email').value;
+            if (!email) return alert("Digite seu e-mail institucional no campo acima.");
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.href.replace('index.html', 'recuperar.html'),
+            });
+            if (error) alert("Erro: " + error.message);
+            else alert("E-mail de recuperação enviado!");
+        }
+
+        function mostrarTela(id) {
+            document.getElementById('card-login').style.display = 'none';
+            document.getElementById('card-cadastro').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-senha').value;
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) alert("Erro: " + error.message);
+            else checkUser();
+        }
+
+        async function criarConta() {
+            const nome = document.getElementById('cad-nome').value;
+            const email = document.getElementById('cad-email').value;
+            const password = document.getElementById('cad-senha').value;
+            if(!nome || !email || password.length < 6) return alert("Preencha os dados corretamente!");
+            const { error } = await supabaseClient.auth.signUp({ 
+                email, password, options: { data: { full_name: nome } }
+            });
+            if (error) alert(error.message);
+            else alert("Cadastro criado com sucesso!");
+        }
+
+        async function fazerLogout() { await supabaseClient.auth.signOut(); checkUser(); }
+
+        function gerarIniciais(nomeOuEmail) {
+            if (!nomeOuEmail) return "ED";
+            const base = nomeOuEmail.split("@")[0];
+            const partes = base.split(/[.\s_-]+/).filter(Boolean);
+            if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
+            return base.slice(0, 2).toUpperCase();
+        }
+
+        async function checkUser() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                document.getElementById('area-auth').style.display = 'none';
+                document.getElementById('tela-principal').style.display = 'block';
+
+                const nomeBase = user.user_metadata.full_name || user.email;
+                document.getElementById('nome-prof').innerText = "Olá, " + nomeBase;
+                document.getElementById('avatar-iniciais').innerText = gerarIniciais(nomeBase);
+
+                document.getElementById('data-selecionada').value = dataAtual;
+                carregarDados();
+            } else {
+                document.getElementById('area-auth').style.display = 'flex';
+                document.getElementById('tela-principal').style.display = 'none';
+                mostrarTela('card-login');
+            }
+        }
+          function getIconePorNome(nome) {
+    if (nome.includes("Notebook")) return "💻";
+    if (nome.includes("Projetor")) return "📽️";
+    if (nome === "TV") return "📺";
+    if (nome.includes("Informática")) return "🖥️";
+    if (nome.includes("Ciências")) return "🔬";
+    if (nome.includes("Biblioteca")) return "📚";
+    return "📦";
+}
+function getCorPorNome(nome) {
+    if (nome.includes("Notebook")) return "#2563eb";
+    if (nome.includes("Projetor")) return "#7c3aed";
+    if (nome === "TV") return "#ea580c";
+    if (nome.includes("Informática")) return "#059669";
+    if (nome.includes("Ciências")) return "#dc2626";
+    if (nome.includes("Biblioteca")) return "#ca8a04";
+    return "#374151";
+}
+
+function renderItem(item, reservas, user, container) {
+    const card = document.createElement('div');
+    card.className = 'recurso-card';
+
+    let temposHtml = '';
+    const listaTempos = turnoAtual === 'integral' 
+        ? [1,2,3,4,5,6,7,8,9] 
+        : [1,2,3,4];
+
+    listaTempos.forEach(t => {
+        const tBanco = turnoAtual === 'noturno' ? t + 9 : t;
+
+        const res = reservas.find(r => 
+            r.item_id === item.id && r.tempo_aula === tBanco
+        );
+
+        let cor = 'verde';
+        let txt = 'Livre';
+        let acao = `abrirModal('${item.id}', '${item.nome}', ${tBanco}, ${t})`;
+
+        if (res) {
+            const eMeu = res.professor_id === user.id;
+
+            cor = eMeu ? 'azul' : 'vermelho';
+            txt = eMeu ? 'Sua Reserva' : res.nome_professor;
+
+            acao = eMeu
+                ? `cancelar('${res.id}')`
+                : `mostrarAvisoReserva('${res.nome_professor}', '${res.turma_local}')`;
+        }
+
+        temposHtml += `
+            <button class="tempo-btn ${cor}" onclick="${acao}">
+                <span>${t}º Tempo</span>
+                <small>${txt}</small>
+            </button>
+        `;
+    });
+
+    card.innerHTML = `
+        <div class="recurso-nome">
+           <span class="icon" style="
+    background:${getCorPorNome(item.nome)}20;
+    color:${getCorPorNome(item.nome)};
+">
+    ${getIconePorNome(item.nome)}
+</span>
+    ${getIconePorNome(item.nome)}
+</span>
+
+            <span>
+                ${item.nome}
+                ${item.inoperante
+                    ? '<span class="aviso-piscando"> ⚠️ MANUTENÇÃO</span>'
+                    : ''}
+            </span>
+
+            <span class="status-dot"></span>
+        </div>
+
+        <div class="grade-tempos">
+            ${temposHtml}
+        </div>
+    `;
+
+    container.appendChild(card);
+}
+
+        async function carregarDados() {
+            const dataSel = document.getElementById('data-selecionada').value;
+            const { data: itens } = await supabaseClient.from('itens_escola').select('*').order('ordem_visual');
+            const { data: reservas } = await supabaseClient.from('reservas_recursos').select('*').eq('data_reserva', dataSel);
+            
+            const container = document.getElementById('container-recursos');
+            container.innerHTML = '';
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+           // Separar itens
+const equipamentos = itens.filter(i => 
+    i.nome.includes("Projetor") || 
+    i.nome.includes("Notebook") || 
+    i.nome === "TV"
+);
+
+const ambientes = itens.filter(i => 
+    i.nome.includes("Informática") || 
+    i.nome.includes("Ciências") || 
+    i.nome.includes("Biblioteca")
+);
+
+// Equipamentos
+container.innerHTML += `<h2 class="secao">💻 Equipamentos</h2>`;
+
+equipamentos.forEach(item => {
+    renderItem(item, reservas, user, container);
+});
+
+// Ambientes
+container.innerHTML += `<h2 class="secao">🏫 Ambientes</h2>`;
+
+ambientes.forEach(item => {
+    renderItem(item, reservas, user, container);
+});
+      }
+
+        function abrirModal(id, nome, tB, tV) {
+            itemSel = id; tempoSel = tB; turmaSel = null;
+            document.getElementById('m-titulo').innerText = nome;
+            document.getElementById('m-tempo').innerText = `${tV}º Tempo`;
+            const chips = document.getElementById('chips-turmas');
+            chips.innerHTML = '';
+            turmas[turnoAtual].forEach(t => {
+                chips.innerHTML += `<button class="chip" onclick="selTurma(this, '${t}')">${t}</button>`;
+            });
+            document.getElementById('modal-reserva').style.display = 'flex';
+        }
+
+        function selTurma(btn, t) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            turmaSel = t;
+        }
+
+        async function salvarReserva() {
+            if(!turmaSel) return alert("Selecione a turma!");
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('reservas_recursos').insert([{
+                item_id: itemSel, professor_id: user.id, nome_professor: user.user_metadata.full_name || user.email,
+                turma_local: turmaSel, data_reserva: document.getElementById('data-selecionada').value,
+                tempo_aula: tempoSel, turno: turnoAtual
+            }]);
+            if(error) alert("Este horário já foi ocupado!"); else { fecharModal(); carregarDados(); }
+        }
+
+       async function cancelar(id) {
+    abrirConfirmCancelamento(id);
+}
+
+        function fecharModal() { document.getElementById('modal-reserva').style.display = 'none'; }
+
+        function mostrarAvisoReserva(nome, turma) {
+            tocarSomBloqueio();
+    const texto = `
+        📌 Ocupado por <strong>${nome}</strong><br>
+        🏫 Turma: <strong>${turma}</strong><br><br>
+        🔒 Somente o(a) prof.(a) <strong>${nome}</strong> pode liberar este tempo!
+    `;
+
+    document.getElementById('aviso-texto').innerHTML = texto;
+    document.getElementById('aviso-reserva').style.display = 'flex';
+}
+
+function fecharAviso() {
+    document.getElementById('aviso-reserva').style.display = 'none';
+}
+function tocarSomBloqueio() {
+    const audio = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    audio.volume = 0.4;
+    audio.play();
+}
+
+let idCancelamento = null;
+
+function abrirConfirmCancelamento(id) {
+    idCancelamento = id;
+    tocarSomBloqueio();
+    document.getElementById('confirm-cancelar').style.display = 'flex';
+}
+
+function fecharConfirmCancelamento() {
+    document.getElementById('confirm-cancelar').style.display = 'none';
+    idCancelamento = null;
+}
+
+async function confirmarCancelamento() {
+    if (!idCancelamento) return;
+
+    await supabaseClient
+        .from('reservas_recursos')
+        .delete()
+        .eq('id', idCancelamento);
+
+    fecharConfirmCancelamento();
+    carregarDados();
+}
+
+
+        function setTurno(t) { 
+            turnoAtual = t; 
+            document.getElementById('btn-integral').classList.toggle('active', t === 'integral');
+            document.getElementById('btn-noturno').classList.toggle('active', t === 'noturno');
+            carregarDados(); 
+        }
+
+        // --- INICIALIZAÇÃO ESTILO DOS ---
+        (function () {
+            const splash = document.getElementById('splash-screen');
+            const terminal = document.getElementById('splash-byline');
+            const lines = [
+                'EEMTI DRAGAO DO MAR :: RESOURCE RESERVATION SYSTEM',
+                'Copyright (c) DSMontenegro. All rights reserved.',
+                '',
+                'C:\\SCHOOL_OS> BOOTING KERNEL v4.2.0...',
+                'C:\\SCHOOL_OS> CHECKING ACADEMIC MODULES ........ [OK]',
+                'C:\\SCHOOL_OS> LOADING RESOURCE INVENTORY ....... [OK]',
+                'C:\\SCHOOL_OS> STARTING SUPABASE CONNECTION ..... [OK]',
+                'C:\\SCHOOL_OS> VERIFYING ACCESS PROTOCOL ........ [OK]',
+                'C:\\SCHOOL_OS> ENCRYPTING SESSION CHANNEL ....... [OK]',
+                'C:\\SCHOOL_OS> MOUNTING RESERVATION PANEL ...... [OK]',
+                '',
+                'SYSTEM STATUS: ONLINE',
+                'TYPE: ACCESS_GRANTED',
+                '',
+                'C:\\SCHOOL_OS> ENTERING INTERFACE...'
+            ];
+            let line = 0;
+            let character = 0;
+            let output = '';
+
+            function render() {
+                terminal.innerHTML = output.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '<span class="splash-cursor"></span>';
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            function typeTerminal() {
+                if (line >= lines.length) {
+                    setTimeout(() => {
+                        splash.classList.add('fade-out');
+                        setTimeout(() => { splash.style.display = 'none'; }, 720);
+                    }, 480);
+                    return;
+                }
+                const current = lines[line];
+                if (character < current.length) {
+                    output += current.charAt(character++);
+                    render();
+                    setTimeout(typeTerminal, 8 + Math.random() * 17);
+                } else {
+                    output += '\n';
+                    line++;
+                    character = 0;
+                    render();
+                    setTimeout(typeTerminal, line === 3 ? 210 : 65 + Math.random() * 70);
+                }
+            }
+            setTimeout(typeTerminal, 260);
+        })();
+        // --- FIM INICIALIZAÇÃO ---
+
+        document.getElementById('data-selecionada').onchange = carregarDados;
+        checkUser();
+    </script>
+    <div id="aviso-reserva" class="aviso-box">
+    <div class="aviso-content">
+        <div class="aviso-header">
+            <span>⛔</span>
+            <strong>Horário Bloqueado</strong>
+        </div>
+
+        <p id="aviso-texto"></p>
+
+        <button onclick="fecharAviso()">OK</button>
+    </div>
+</div>
+
+<div id="confirm-cancelar" class="aviso-box">
+    <div class="aviso-content">
+        <div class="aviso-header">
+            <span>⚠️</span>
+            <strong>Cancelar Reserva</strong>
+        </div>
+
+        <p>
+            Deseja realmente cancelar esta reserva?<br><br>
+            
+        </p>
+
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button onclick="fecharConfirmCancelamento()">Voltar</button>
+            <button onclick="confirmarCancelamento()" style="background:#7f1d1d; border-color:#991b1b;">
+                Cancelar Reserva
+            </button>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
