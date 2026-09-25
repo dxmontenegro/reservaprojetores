@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Registrar Ocorrência - EEMTI Dragão do Mar</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    font-family:
+        "Inter",
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #e5edff,
+            #f3f4f6 45%,
+            #e5e7eb
+        );
+
+    color: #0f172a;
+
+    padding: 20px;
+
+}
+
+
+.container {
+
+    width: 100%;
+
+    max-width: 520px;
+
+    margin: 30px auto;
+
+}
+
+
+.card {
+
+    background:
+        rgba(255,255,255,.96);
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius:
+        22px;
+
+    padding:
+        25px;
+
+    box-shadow:
+        0 20px 45px
+        rgba(15,23,42,.15);
+
+}
+
+
+.topo {
+
+    text-align:
+        center;
+
+    margin-bottom:
+        24px;
+
+}
+
+
+.icone {
+
+    width:
+        70px;
+
+    height:
+        70px;
+
+    margin:
+        0 auto 12px;
+
+    border-radius:
+        20px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    font-size:
+        2rem;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fee2e2,
+            #fecaca
+        );
+
+    box-shadow:
+        0 10px 25px
+        rgba(220,38,38,.2);
+
+}
+
+
+h1 {
+
+    margin:
+        0;
+
+    font-size:
+        1.35rem;
+
+}
+
+
+.subtitulo {
+
+    color:
+        #6b7280;
+
+    font-size:
+        .9rem;
+
+    margin-top:
+        6px;
+
+}
+
+
+label {
+
+    display:
+        block;
+
+    font-size:
+        .82rem;
+
+    font-weight:
+        600;
+
+    color:
+        #374151;
+
+    margin-bottom:
+        7px;
+
+}
+
+
+.campo {
+
+    margin-bottom:
+        18px;
+
+}
+
+
+select,
+textarea {
+
+    width:
+        100%;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius:
+        14px;
+
+    background:
+        #f9fafb;
+
+    padding:
+        12px 14px;
+
+    font-family:
+        inherit;
+
+    font-size:
+        .9rem;
+
+    color:
+        #111827;
+
+    outline:
+        none;
+
+    transition:
+        .2s;
+
+}
+
+
+select:focus,
+textarea:focus {
+
+    border-color:
+        #2563eb;
+
+    background:
+        white;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.1);
+
+}
+
+
+textarea {
+
+    min-height:
+        150px;
+
+    resize:
+        vertical;
+
+}
+
+
+/* ==========================================
+   USUÁRIO
+========================================== */
+
+.usuario {
+
+    background:
+        #f1f5f9;
+
+    border-radius:
+        12px;
+
+    padding:
+        11px 13px;
+
+    margin-bottom:
+        20px;
+
+    font-size:
+        .82rem;
+
+    color:
+        #475569;
+
+}
+
+
+.usuario strong {
+
+    color:
+        #0f172a;
+
+}
+
+
+/* ==========================================
+   FOTO DA OCORRÊNCIA
+========================================== */
+
+.foto-campo {
+
+    margin-bottom:
+        18px;
+
+}
+
+
+.btn-camera {
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        9px;
+
+    padding:
+        13px 15px;
+
+    border:
+        1px dashed #94a3b8;
+
+    border-radius:
+        14px;
+
+    background:
+        #f8fafc;
+
+    color:
+        #334155;
+
+    font-family:
+        inherit;
+
+    font-size:
+        .88rem;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+    transition:
+        .18s;
+
+}
+
+
+.btn-camera:hover {
+
+    background:
+        #eff6ff;
+
+    border-color:
+        #2563eb;
+
+    color:
+        #1d4ed8;
+
+}
+
+
+.btn-camera:active {
+
+    transform:
+        scale(.99);
+
+}
+
+
+.btn-camera.com-foto {
+
+    border-style:
+        solid;
+
+    border-color:
+        #86efac;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+}
+
+
+#input-foto {
+
+    display:
+        none;
+
+}
+
+
+.foto-preview {
+
+    display:
+        none;
+
+    position:
+        relative;
+
+    margin-top:
+        10px;
+
+    border-radius:
+        14px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid #d1d5db;
+
+    background:
+        #f8fafc;
+
+}
+
+
+.foto-preview img {
+
+    display:
+        block;
+
+    width:
+        100%;
+
+    max-height:
+        280px;
+
+    object-fit:
+        contain;
+
+}
+
+
+.btn-remover-foto {
+
+    position:
+        absolute;
+
+    top:
+        8px;
+
+    right:
+        8px;
+
+    width:
+        34px;
+
+    height:
+        34px;
+
+    border:
+        none;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(15,23,42,.78);
+
+    color:
+        white;
+
+    cursor:
+        pointer;
+
+    font-size:
+        1rem;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        0;
+
+}
+
+
+.btn-remover-foto:hover {
+
+    background:
+        rgba(220,38,38,.9);
+
+}
+
+
+/* ==========================================
+   BOTÕES
+========================================== */
+
+.botoes {
+
+    display:
+        flex;
+
+    gap:
+        10px;
+
+    margin-top:
+        8px;
+
+}
+
+
+button {
+
+    flex:
+        1;
+
+    border:
+        none;
+
+    border-radius:
+        999px;
+
+    padding:
+        12px;
+
+    font-family:
+        inherit;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+    transition:
+        .18s;
+
+}
+
+
+.btn-voltar {
+
+    background:
+        #f1f5f9;
+
+    color:
+        #374151;
+
+    border:
+        1px solid #d1d5db;
+
+}
+
+
+.btn-voltar:hover {
+
+    background:
+        #e5e7eb;
+
+}
+
+
+.btn-registrar {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #ef4444
+        );
+
+    color:
+        white;
+
+    box-shadow:
+        0 10px 25px
+        rgba(220,38,38,.35);
+
+}
+
+
+.btn-registrar:hover {
+
+    transform:
+        translateY(-1px);
+
+}
+
+
+button:disabled {
+
+    opacity:
+        .6;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+/* ==========================================
+   MENSAGENS
+========================================== */
+
+.mensagem {
+
+    display:
+        none;
+
+    margin-top:
+        16px;
+
+    padding:
+        12px;
+
+    border-radius:
+        12px;
+
+    text-align:
+        center;
+
+    font-size:
+        .85rem;
+
+}
+
+
+.sucesso {
+
+    display:
+        block;
+
+    background:
+        #dcfce7;
+
+    color:
+        #166534;
+
+}
+
+
+.erro {
+
+    display:
+        block;
+
+    background:
+        #fee2e2;
+
+    color:
+        #991b1b;
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 500px) {
+
+    body {
+
+        padding:
+            12px;
+
+    }
+
+
+    .container {
+
+        margin:
+            15px auto;
+
+    }
+
+
+    .card {
+
+        padding:
+            20px 17px;
+
+    }
+
+
+    .botoes {
+
+        gap:
+            8px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+<div class="card">
+
+
+<div class="topo">
+
+<div class="icone">
+    ⚠️
+</div>
+
+
+<h1>
+    Registrar Ocorrência
+</h1>
+
+
+<div class="subtitulo">
+
+    Relate problemas ou possíveis maus usos
+    dos equipamentos.
+
+</div>
+
+</div>
+
+
+<div class="usuario">
+
+    Registrado por:
+
+    <strong id="nome-usuario">
+        Carregando...
+    </strong>
+
+</div>
+
+
+<!-- ==========================================
+     EQUIPAMENTO
+========================================== -->
+
+<div class="campo">
+
+<label for="equipamento">
+
+    Equipamento
+
+</label>
+
+
+<select id="equipamento">
+
+<option value="">
+
+    Carregando equipamentos...
+
+</option>
+
+</select>
+
+</div>
+
+
+<!-- ==========================================
+     DESCRIÇÃO
+========================================== -->
+
+<div class="campo">
+
+<label for="descricao">
+
+    Descrição do observado
+
+</label>
+
+
+<textarea
+    id="descricao"
+    placeholder="Descreva o que foi observado, por exemplo: equipamento devolvido com cabo danificado..."
+></textarea>
+
+</div>
+
+
+<!-- ==========================================
+     FOTO
+========================================== -->
+
+<div class="foto-campo">
+
+<label>
+
+    Foto da ocorrência
+
+    <span
+        style="
+            font-weight:400;
+            color:#64748b;
+        "
+    >
+        (opcional)
+    </span>
+
+</label>
+
+
+<input
+    type="file"
+    id="input-foto"
+    accept="image/*"
+    capture="environment"
+>
+
+
+<button
+    type="button"
+    class="btn-camera"
+    id="btn-camera"
+    onclick="abrirCamera()"
+>
+
+    📷
+
+    <span id="texto-camera">
+
+        Tirar foto / escolher imagem
+
+    </span>
+
+</button>
+
+
+<div
+    class="foto-preview"
+    id="foto-preview"
+>
+
+    <img
+        id="preview-foto"
+        alt="Pré-visualização da foto da ocorrência"
+    >
+
+
+    <button
+        type="button"
+        class="btn-remover-foto"
+        onclick="removerFoto()"
+        title="Remover foto"
+    >
+
+        ✕
+
+    </button>
+
+</div>
+
+</div>
+
+
+<!-- ==========================================
+     BOTÕES
+========================================== -->
+
+<div class="botoes">
+
+
+<button
+    type="button"
+    class="btn-voltar"
+    onclick="voltarMenu()"
+>
+
+    ← Voltar
+
+</button>
+
+
+<button
+    type="button"
+    class="btn-registrar"
+    id="btn-registrar"
+    onclick="registrarOcorrencia()"
+>
+
+    Registrar
+
+</button>
+
+
+</div>
+
+
+<div
+    id="mensagem"
+    class="mensagem"
+></div>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   SUPABASE
+========================================== */
+
+const SB_URL =
+"https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+
+const SB_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+
+const supabaseClient =
+    supabase.createClient(
+        SB_URL,
+        SB_KEY
+    );
+
+
+/* ==========================================
+   VARIÁVEIS
+========================================== */
+
+let usuarioAtual = null;
+
+let arquivoFoto = null;
+
+
+const selectEquipamento =
+    document.getElementById(
+        "equipamento"
+    );
+
+
+const descricao =
+    document.getElementById(
+        "descricao"
+    );
+
+
+const nomeUsuario =
+    document.getElementById(
+        "nome-usuario"
+    );
+
+
+const mensagem =
+    document.getElementById(
+        "mensagem"
+    );
+
+
+const botao =
+    document.getElementById(
+        "btn-registrar"
+    );
+
+
+const inputFoto =
+    document.getElementById(
+        "input-foto"
+    );
+
+
+const btnCamera =
+    document.getElementById(
+        "btn-camera"
+    );
+
+
+const textoCamera =
+    document.getElementById(
+        "texto-camera"
+    );
+
+
+const fotoPreview =
+    document.getElementById(
+        "foto-preview"
+    );
+
+
+const previewFoto =
+    document.getElementById(
+        "preview-foto"
+    );
+
+
+/* ==========================================
+   USUÁRIO
+========================================== */
+
+async function carregarUsuario() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+    if (
+        error ||
+        !data.user
+    ) {
+
+        nomeUsuario.textContent =
+            "Usuário não autenticado";
+
+
+        botao.disabled =
+            true;
+
+
+        mostrarMensagem(
+            "Faça login novamente.",
+            "erro"
+        );
+
+
+        return;
+
+    }
+
+
+    usuarioAtual =
+        data.user;
+
+
+    const nome =
+        usuarioAtual
+            .user_metadata
+            ?.full_name ||
+
+        usuarioAtual.email ||
+
+        "Usuário";
+
+
+    nomeUsuario.textContent =
+        nome;
+
+}
+
+
+/* ==========================================
+   EQUIPAMENTOS
+========================================== */
+
+async function carregarEquipamentos() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "itens_escola"
+            )
+
+            .select(
+                "id,nome"
+            )
+
+            .order(
+                "ordem_visual",
+                {
+                    ascending:
+                        true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            error
+        );
+
+
+        selectEquipamento.innerHTML =
+            '<option value="">Erro ao carregar</option>';
+
+
+        mostrarMensagem(
+            "Erro ao carregar equipamentos.",
+            "erro"
+        );
+
+
+        return;
+
+    }
+
+
+    selectEquipamento.innerHTML =
+        '<option value="">Selecione o equipamento</option>';
+
+
+    const equipamentos =
+        data.filter(
+            item =>
+
+                item.nome.includes(
+                    "Projetor"
+                )
+
+                ||
+
+                item.nome.includes(
+                    "Notebook"
+                )
+
+                ||
+
+                item.nome ===
+                    "TV"
+
+        );
+
+
+    equipamentos.forEach(
+        item => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item.id;
+
+
+            option.textContent =
+                item.nome;
+
+
+            selectEquipamento
+                .appendChild(
+                    option
+                );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   CÂMERA / FOTO
+========================================== */
+
+function abrirCamera() {
+
+    inputFoto.click();
+
+}
+
+
+inputFoto.addEventListener(
+    "change",
+    function() {
+
+        const arquivo =
+            this.files?.[0];
+
+
+        if (!arquivo) {
+
+            return;
+
+        }
+
+
+        /* Verifica se é imagem */
+
+        if (
+            !arquivo.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            mostrarMensagem(
+                "Selecione uma imagem válida.",
+                "erro"
+            );
+
+
+            this.value =
+                "";
+
+
+            return;
+
+        }
+
+
+        /*
+         * Limite da foto original:
+         * 10 MB
+         */
+
+        if (
+            arquivo.size >
+            10 * 1024 * 1024
+        ) {
+
+            mostrarMensagem(
+                "A foto deve ter no máximo 10 MB.",
+                "erro"
+            );
+
+
+            this.value =
+                "";
+
+
+            return;
+
+        }
+
+
+        arquivoFoto =
+            arquivo;
+
+
+        /*
+         * Mostra a prévia
+         */
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(event) {
+
+                previewFoto.src =
+                    event.target.result;
+
+
+                fotoPreview.style.display =
+                    "block";
+
+
+                btnCamera.classList.add(
+                    "com-foto"
+                );
+
+
+                textoCamera.textContent =
+                    "Foto selecionada — tocar para trocar";
+
+            };
+
+
+        reader.readAsDataURL(
+            arquivo
+        );
+
+    }
+);
+
+
+/* ==========================================
+   REMOVER FOTO
+========================================== */
+
+function removerFoto() {
+
+    arquivoFoto =
+        null;
+
+
+    inputFoto.value =
+        "";
+
+
+    previewFoto.removeAttribute(
+        "src"
+    );
+
+
+    fotoPreview.style.display =
+        "none";
+
+
+    btnCamera.classList.remove(
+        "com-foto"
+    );
+
+
+    textoCamera.textContent =
+        "Tirar foto / escolher imagem";
+
+}
+
+
+/* ==========================================
+   REDUZIR FOTO
+========================================== */
+
+async function prepararFoto(
+    arquivo
+) {
+
+    const imagem =
+        await new Promise(
+            (
+                resolve,
+                reject
+            ) => {
+
+                const img =
+                    new Image();
+
+
+                img.onload =
+                    () => resolve(
+                        img
+                    );
+
+
+                img.onerror =
+                    reject;
+
+
+                img.src =
+                    URL.createObjectURL(
+                        arquivo
+                    );
+
+            }
+        );
+
+
+    /*
+     * Maior dimensão permitida:
+     * 1600 pixels
+     */
+
+    const maxDim =
+        1600;
+
+
+    const maiorDimensao =
+        Math.max(
+            imagem.naturalWidth,
+            imagem.naturalHeight
+        );
+
+
+    const escala =
+        Math.min(
+            1,
+            maxDim /
+                maiorDimensao
+        );
+
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    canvas.width =
+        Math.max(
+            1,
+            Math.round(
+                imagem.naturalWidth *
+                escala
+            )
+        );
+
+
+    canvas.height =
+        Math.max(
+            1,
+            Math.round(
+                imagem.naturalHeight *
+                escala
+            )
+        );
+
+
+    const contexto =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    contexto.drawImage(
+        imagem,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    URL.revokeObjectURL(
+        imagem.src
+    );
+
+
+    return new Promise(
+        resolve => {
+
+            canvas.toBlob(
+                blob => {
+
+                    resolve(
+                        blob
+                    );
+
+                },
+                "image/jpeg",
+                0.82
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   ENVIAR FOTO
+========================================== */
+
+async function enviarFoto() {
+
+    if (
+        !arquivoFoto ||
+        !usuarioAtual
+    ) {
+
+        return null;
+
+    }
+
+
+    const foto =
+        await prepararFoto(
+            arquivoFoto
+        );
+
+
+    if (!foto) {
+
+        throw new Error(
+            "Não foi possível preparar a foto."
+        );
+
+    }
+
+
+    /*
+     * A foto fica dentro da pasta
+     * do usuário autenticado.
+     */
+
+    const nomeArquivo =
+        `${usuarioAtual.id}/${Date.now()}-${crypto.randomUUID()}.jpg`;
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .storage
+
+            .from(
+                "ocorrencias"
+            )
+
+            .upload(
+                nomeArquivo,
+                foto,
+                {
+                    contentType:
+                        "image/jpeg",
+
+                    upsert:
+                        false
+                }
+            );
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+
+    /*
+     * O bucket precisa estar público
+     * para esta URL funcionar.
+     */
+
+    const {
+        data
+    } =
+        supabaseClient
+
+            .storage
+
+            .from(
+                "ocorrencias"
+            )
+
+            .getPublicUrl(
+                nomeArquivo
+            );
+
+
+    return data.publicUrl;
+
+}
+
+
+/* ==========================================
+   REGISTRAR OCORRÊNCIA
+========================================== */
+
+async function registrarOcorrencia() {
+
+    if (!usuarioAtual) {
+
+        mostrarMensagem(
+            "Usuário não autenticado.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    const itemId =
+        selectEquipamento.value;
+
+
+    const texto =
+        descricao.value.trim();
+
+
+    /* ----------------------------------------
+       VALIDAÇÕES
+    ---------------------------------------- */
+
+    if (!itemId) {
+
+        mostrarMensagem(
+            "Selecione o equipamento.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    if (!texto) {
+
+        mostrarMensagem(
+            "Digite a descrição do observado.",
+            "erro"
+        );
+
+
+        descricao.focus();
+
+
+        return;
+
+    }
+
+
+    /* ----------------------------------------
+       BLOQUEIA O BOTÃO
+    ---------------------------------------- */
+
+    botao.disabled =
+        true;
+
+
+    botao.textContent =
+        "Registrando...";
+
+
+    const nome =
+        usuarioAtual
+            .user_metadata
+            ?.full_name ||
+
+        usuarioAtual.email ||
+
+        "Usuário";
+
+
+    /* ----------------------------------------
+       ENVIA A FOTO, SE EXISTIR
+    ---------------------------------------- */
+
+    let fotoUrl =
+        null;
+
+
+    try {
+
+        if (arquivoFoto) {
+
+            botao.textContent =
+                "Enviando foto...";
+
+
+            fotoUrl =
+                await enviarFoto();
+
+        }
+
+    }
+    catch (erroFoto) {
+
+        console.error(
+            "Erro ao enviar foto:",
+            erroFoto
+        );
+
+
+        mostrarMensagem(
+            "Não foi possível enviar a foto: " +
+            (
+                erroFoto.message ||
+                "erro no upload."
+            ),
+            "erro"
+        );
+
+
+        botao.disabled =
+            false;
+
+
+        botao.textContent =
+            "Registrar";
+
+
+        return;
+
+    }
+
+
+    /* ----------------------------------------
+       REGISTRA A OCORRÊNCIA
+    ---------------------------------------- */
+
+    botao.textContent =
+        "Salvando ocorrência...";
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "registros_uso"
+            )
+
+            .insert({
+
+                item_id:
+                    itemId,
+
+                descricao:
+                    texto,
+
+                professor_id:
+                    usuarioAtual.id,
+
+                nome_professor:
+                    nome,
+
+                foto_url:
+                    fotoUrl
+
+            });
+
+
+    /* ----------------------------------------
+       ERRO
+    ---------------------------------------- */
+
+    if (error) {
+
+        console.error(
+            error
+        );
+
+
+        mostrarMensagem(
+            "Erro ao registrar: " +
+            error.message,
+            "erro"
+        );
+
+
+        botao.disabled =
+            false;
+
+
+        botao.textContent =
+            "Registrar";
+
+
+        return;
+
+    }
+
+
+    /* ----------------------------------------
+       SUCESSO
+    ---------------------------------------- */
+
+    mostrarMensagem(
+        "✅ Ocorrência registrada com sucesso!",
+        "sucesso"
+    );
+
+
+    selectEquipamento.value =
+        "";
+
+
+    descricao.value =
+        "";
+
+
+    removerFoto();
+
+
+    botao.disabled =
+        false;
+
+
+    botao.textContent =
+        "Registrar";
+
+}
+
+
+/* ==========================================
+   MENSAGEM
+========================================== */
+
+function mostrarMensagem(
+    texto,
+    tipo
+) {
+
+    mensagem.textContent =
+        texto;
+
+
+    mensagem.className =
+        "mensagem " +
+        tipo;
+
+}
+
+
+/* ==========================================
+   VOLTAR
+========================================== */
+
+function voltarMenu() {
+
+    window.location.href =
+        "menu.html";
+
+}
+
+
+/* ==========================================
+   INICIAR
+========================================== */
+
+async function iniciar() {
+
+    await carregarUsuario();
+
+    await carregarEquipamentos();
+
+}
+
+
+iniciar();
+
+</script>
+
+</body>
+
+</html>
