@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Registrar Ocorrência - EEMTI Dragão do Mar</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Inter", sans-serif;
+    background:
+        radial-gradient(circle at top, #e5edff, #f3f4f6 45%, #e5e7eb);
+    color: #0f172a;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 520px;
+    margin: 30px auto;
+}
+
+.card {
+    background: rgba(255,255,255,.96);
+    border: 1px solid #d1d5db;
+    border-radius: 22px;
+    padding: 25px;
+    box-shadow: 0 20px 45px rgba(15,23,42,.15);
+}
+
+.topo {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.icone {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg,#fee2e2,#fecaca);
+    box-shadow: 0 10px 25px rgba(220,38,38,.2);
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.35rem;
+}
+
+.subtitulo {
+    color: #6b7280;
+    font-size: .9rem;
+    margin-top: 6px;
+}
+
+label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 7px;
+}
+
+.campo {
+    margin-bottom: 18px;
+}
+
+select,
+textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    background: #f9fafb;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: .9rem;
+    color: #111827;
+    outline: none;
+    transition: .2s;
+}
+
+select:focus,
+textarea:focus {
+    border-color: #2563eb;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(37,99,235,.1);
+}
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.usuario {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 11px 13px;
+    margin-bottom: 20px;
+    font-size: .82rem;
+    color: #475569;
+}
+
+.usuario strong {
+    color: #0f172a;
+}
+
+.botoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+button {
+    flex: 1;
+    border: none;
+    border-radius: 999px;
+    padding: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .18s;
+}
+
+.btn-voltar {
+    background: #f1f5f9;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.btn-voltar:hover {
+    background: #e5e7eb;
+}
+
+.btn-registrar {
+    background: linear-gradient(135deg,#dc2626,#ef4444);
+    color: white;
+    box-shadow: 0 10px 25px rgba(220,38,38,.35);
+}
+
+.btn-registrar:hover {
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.mensagem {
+    display: none;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: .85rem;
+}
+
+.sucesso {
+    display: block;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.erro {
+    display: block;
+    background: #fee2e2;
+    color: #991b1b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<div class="topo">
+
+<div class="icone">⚠️</div>
+
+<h1>Registrar Ocorrência</h1>
+
+<div class="subtitulo">
+Relate problemas ou possíveis maus usos dos equipamentos.
+</div>
+
+</div>
+
+
+<div class="usuario">
+
+Registrado por:
+
+<strong id="nome-usuario">
+Carregando...
+</strong>
+
+</div>
+
+
+<div class="campo">
+
+<label for="equipamento">
+Equipamento
+</label>
+
+<select id="equipamento">
+
+<option value="">
+Carregando equipamentos...
+</option>
+
+</select>
+
+</div>
+
+
+<div class="campo">
+
+<label for="descricao">
+Descrição do observado
+</label>
+
+<textarea
+id="descricao"
+placeholder="Descreva o que foi observado, por exemplo: equipamento devolvido com cabo danificado..."
+></textarea>
+
+</div>
+
+
+<div class="botoes">
+
+<button
+class="btn-voltar"
+onclick="voltarMenu()">
+← Voltar
+</button>
+
+<button
+class="btn-registrar"
+id="btn-registrar"
+onclick="registrarOcorrencia()">
+Registrar
+</button>
+
+</div>
+
+
+<div id="mensagem" class="mensagem"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   SUPABASE
+========================================== */
+
+const SB_URL =
+"https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+const SB_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+const supabaseClient =
+supabase.createClient(SB_URL, SB_KEY);
+
+
+/* ==========================================
+   VARIÁVEIS
+========================================== */
+
+let usuarioAtual = null;
+
+const selectEquipamento =
+document.getElementById("equipamento");
+
+const descricao =
+document.getElementById("descricao");
+
+const nomeUsuario =
+document.getElementById("nome-usuario");
+
+const mensagem =
+document.getElementById("mensagem");
+
+const botao =
+document.getElementById("btn-registrar");
+
+
+/* ==========================================
+   USUÁRIO
+========================================== */
+
+async function carregarUsuario() {
+
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.getUser();
+
+    if (error || !data.user) {
+
+        nomeUsuario.textContent =
+        "Usuário não autenticado";
+
+        botao.disabled = true;
+
+        mostrarMensagem(
+            "Faça login novamente.",
+            "erro"
+        );
+
+        return;
+    }
+
+    usuarioAtual = data.user;
+
+    const nome =
+        usuarioAtual.user_metadata?.full_name ||
+        usuarioAtual.email ||
+        "Usuário";
+
+    nomeUsuario.textContent = nome;
+}
+
+
+/* ==========================================
+   EQUIPAMENTOS
+========================================== */
+
+async function carregarEquipamentos() {
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("itens_escola")
+        .select("id,nome")
+        .order("ordem_visual", {
+            ascending: true
+        });
+
+
+    if (error) {
+
+        console.error(error);
+
+        selectEquipamento.innerHTML =
+        '<option value="">Erro ao carregar</option>';
+
+        mostrarMensagem(
+            "Erro ao carregar equipamentos.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    selectEquipamento.innerHTML =
+    '<option value="">Selecione o equipamento</option>';
+
+
+    const equipamentos =
+    data.filter(item =>
+
+        item.nome.includes("Projetor") ||
+        item.nome.includes("Notebook") ||
+        item.nome === "TV"
+
+    );
+
+
+    equipamentos.forEach(item => {
+
+        const option =
+        document.createElement("option");
+
+        option.value =
+        item.id;
+
+        option.textContent =
+        item.nome;
+
+        selectEquipamento.appendChild(option);
+
+    });
+}
+
+
+/* ==========================================
+   REGISTRAR
+========================================== */
+
+async function registrarOcorrencia() {
+
+    if (!usuarioAtual) {
+
+        mostrarMensagem(
+            "Usuário não autenticado.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    const itemId =
+    selectEquipamento.value;
+
+    const texto =
+    descricao.value.trim();
+
+
+    if (!itemId) {
+
+        mostrarMensagem(
+            "Selecione o equipamento.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    if (!texto) {
+
+        mostrarMensagem(
+            "Digite a descrição do observado.",
+            "erro"
+        );
+
+        descricao.focus();
+
+        return;
+    }
+
+
+    botao.disabled = true;
+
+    botao.textContent =
+    "Registrando...";
+
+
+    const nome =
+        usuarioAtual.user_metadata?.full_name ||
+        usuarioAtual.email ||
+        "Usuário";
+
+
+    /*
+     * ATENÇÃO:
+     *
+     * Não estamos usando a coluna "equipamento",
+     * porque ela NÃO existe na sua tabela.
+     *
+     * O equipamento será identificado através
+     * do item_id.
+     */
+
+    const {
+        error
+    } = await supabaseClient
+        .from("registros_uso")
+        .insert({
+
+            item_id: itemId,
+
+            descricao: texto,
+
+            professor_id:
+            usuarioAtual.id,
+
+            nome_professor:
+            nome
+
+        });
+
+
+    if (error) {
+
+        console.error(error);
+
+        mostrarMensagem(
+            "Erro ao registrar: " +
+            error.message,
+            "erro"
+        );
+
+        botao.disabled = false;
+
+        botao.textContent =
+        "Registrar";
+
+        return;
+    }
+
+
+    mostrarMensagem(
+        "✅ Ocorrência registrada com sucesso!",
+        "sucesso"
+    );
+
+
+    selectEquipamento.value = "";
+
+    descricao.value = "";
+
+
+    botao.disabled = false;
+
+    botao.textContent =
+    "Registrar";
+}
+
+
+/* ==========================================
+   MENSAGEM
+========================================== */
+
+function mostrarMensagem(texto, tipo) {
+
+    mensagem.textContent =
+    texto;
+
+    mensagem.className =
+    "mensagem " + tipo;
+}
+
+
+/* ==========================================
+   VOLTAR
+========================================== */
+
+function voltarMenu() {
+
+    window.location.href =
+    "menu.html";
+}
+
+
+/* ==========================================
+   INICIAR
+========================================== */
+
+async function iniciar() {
+
+    await carregarUsuario();
+
+    await carregarEquipamentos();
+
+}
+
+iniciar();
+
+</script>
+
+</body>
+</html>
+
+
+
+

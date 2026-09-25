@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EEMTI Dragão do Mar - Acesso</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Fonte -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        :root {
+            --verde: #16a34a;
+            --azul: #2563eb;
+            --escuro: #0f172a;
+            --cinza: #6b7280;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --radius: 22px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                "Inter",
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            color: var(--escuro);
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #e5edff 0,
+                    #f3f4f6 40%,
+                    #e5e7eb 100%
+                );
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* =====================================================
+           SPLASH SCREEN
+        ===================================================== */
+
+        #splash-screen {
+
+            position: fixed;
+            inset: 0;
+
+            background: #ffffff;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 32px;
+
+            z-index: 9999;
+        }
+
+        #splash-screen.fade-out {
+
+            animation:
+                splashFadeOut
+                0.8s
+                ease
+                forwards;
+        }
+
+        @keyframes splashFadeOut {
+
+            to {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+        }
+
+
+        .splash-logo-wrapper {
+
+            position: relative;
+
+            width: 160px;
+            height: 160px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .splash-logo-wrapper img {
+
+            width: 110px;
+            height: 110px;
+
+            object-fit: contain;
+
+            position: relative;
+
+            z-index: 2;
+
+            border-radius: 50%;
+        }
+
+
+        .neon-ring {
+
+            position: absolute;
+
+            inset: 0;
+
+            border-radius: 50%;
+
+            border: 3px solid transparent;
+
+            background:
+                linear-gradient(
+                    #ffffff,
+                    #8fe9ff
+                ) padding-box,
+
+                conic-gradient(
+                    from 0deg,
+                    #16a34a,
+                    #4ade80,
+                    #22c55e,
+                    #86efac,
+                    #16a34a
+                ) border-box;
+
+            animation:
+                spinCCW
+                2.4s
+                linear
+                infinite,
+
+                ringAppear
+                0.6s
+                ease
+                0.2s
+                both;
+
+            filter:
+                drop-shadow(
+                    0 0 8px
+                    #22c55e
+                )
+                drop-shadow(
+                    0 0 16px
+                    #16a34a
+                );
+        }
+
+
+        @keyframes spinCCW {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(-360deg);
+            }
+
+        }
+
+
+        @keyframes ringAppear {
+
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+
+        }
+
+
+        .splash-byline {
+
+            font-family:
+                "Courier New",
+                Courier,
+                monospace;
+
+            font-size: 1rem;
+
+            color: #000000;
+
+            letter-spacing: 0.04em;
+
+            min-height: 1.4em;
+
+            text-shadow:
+                0 0 10px
+                rgba(56, 189, 248, 0.7);
+
+            opacity: 0;
+
+            animation:
+                bylineShow
+                0.3s
+                ease
+                1.2s
+                forwards;
+        }
+
+
+        @keyframes bylineShow {
+
+            to {
+                opacity: 1;
+            }
+
+        }
+
+
+        .splash-cursor {
+
+            display: inline-block;
+
+            width: 2px;
+            height: 1em;
+
+            background: #ff0000;
+
+            margin-left: 2px;
+
+            vertical-align: text-bottom;
+
+            animation:
+                blink
+                0.7s
+                step-end
+                infinite;
+        }
+
+
+        @keyframes blink {
+
+            50% {
+                opacity: 0;
+            }
+
+        }
+
+
+        /* =====================================================
+           ÁREA DE AUTENTICAÇÃO
+        ===================================================== */
+
+        .auth-container {
+
+            flex: 1;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px 16px;
+        }
+
+
+        /* =====================================================
+           CARD
+        ===================================================== */
+
+        .auth-card {
+
+            width: 100%;
+            max-width: 420px;
+
+            padding:
+                28px
+                26px
+                24px;
+
+            border-radius: var(--radius);
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(191, 219, 254, 0.6),
+                    transparent 60%
+                ),
+
+                linear-gradient(
+                    145deg,
+                    #ffffff,
+                    #f9fafb
+                );
+
+            border:
+                1px solid
+                rgba(209, 213, 219, 0.9);
+
+            box-shadow:
+                0 18px 45px
+                rgba(15, 23, 42, 0.16);
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        .auth-card::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: -40%;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(34, 197, 94, 0.18),
+                    transparent 60%
+                ),
+
+                radial-gradient(
+                    circle at bottom left,
+                    rgba(59, 130, 246, 0.18),
+                    transparent 55%
+                );
+
+            mix-blend-mode: screen;
+
+            opacity: 0.7;
+
+            pointer-events: none;
+        }
+
+
+        .auth-card > * {
+
+            position: relative;
+
+            z-index: 1;
+        }
+
+
+        /* =====================================================
+           LOGO
+        ===================================================== */
+
+        .logo-escola {
+
+            width: 84px;
+            height: 84px;
+
+            border-radius: 22px;
+
+            margin-bottom: 16px;
+
+            object-fit: cover;
+
+            box-shadow:
+                0 12px 26px
+                rgba(15, 23, 42, 0.35);
+        }
+
+
+        /* =====================================================
+           TÍTULOS
+        ===================================================== */
+
+        .titulo-escola {
+
+            margin: 0;
+
+            font-size: 1.35rem;
+
+            color: var(--escuro);
+
+            font-weight: 700;
+
+            letter-spacing: -0.02em;
+        }
+
+
+        .subtitulo-login {
+
+            margin:
+                6px
+                0
+                18px;
+
+            font-size: 0.95rem;
+
+            color: var(--cinza);
+
+            font-weight: 500;
+        }
+
+
+        /* =====================================================
+           CAMPOS
+        ===================================================== */
+
+        .field-wrapper {
+
+            width: 100%;
+
+            margin: 6px 0;
+
+            text-align: left;
+        }
+
+
+        .field-label {
+
+            font-size: 0.78rem;
+
+            color: var(--cinza);
+
+            margin-bottom: 4px;
+        }
+
+
+        .input-shell {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding:
+                9px
+                11px;
+
+            border-radius: 999px;
+
+            background: #f9fafb;
+
+            border:
+                1px solid
+                rgba(209, 213, 219, 0.9);
+
+            transition:
+                border-color 0.18s ease,
+                box-shadow 0.18s ease,
+                background 0.18s ease,
+                transform 0.08s ease;
+        }
+
+
+        .input-shell span.icon {
+
+            font-size: 1rem;
+
+            color: #9ca3af;
+
+            display: inline-flex;
+
+            width: 22px;
+
+            justify-content: center;
+        }
+
+
+        .input-shell input {
+
+            border: none;
+
+            background: transparent;
+
+            outline: none;
+
+            width: 100%;
+
+            color: var(--escuro);
+
+            font-size: 0.9rem;
+        }
+
+
+        .input-shell input::placeholder {
+
+            color: #9ca3af;
+        }
+
+
+        .input-shell:focus-within {
+
+            border-color: var(--azul);
+
+            background: #ffffff;
+
+            box-shadow:
+                0 0 0 1px
+                rgba(37, 99, 235, 0.4),
+
+                0 0 0 7px
+                rgba(191, 219, 254, 0.9);
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        /* =====================================================
+           BOTÃO PRINCIPAL
+        ===================================================== */
+
+        .btn-principal {
+
+            width: 100%;
+
+            padding: 11px;
+
+            margin-top: 14px;
+
+            border: none;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #22c55e
+                );
+
+            color: white;
+
+            font-weight: 600;
+
+            font-size: 0.95rem;
+
+            cursor: pointer;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            box-shadow:
+                0 16px 36px
+                rgba(37, 99, 235, 0.55);
+
+            transition:
+                transform 0.08s ease,
+                box-shadow 0.18s ease,
+                opacity 0.16s ease;
+        }
+
+
+        .btn-principal:hover {
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 22px 46px
+                rgba(37, 99, 235, 0.65);
+
+            opacity: 0.98;
+        }
+
+
+        .btn-principal:active {
+
+            transform:
+                translateY(0);
+
+            box-shadow:
+                0 10px 26px
+                rgba(37, 99, 235, 0.55);
+        }
+
+
+        /* =====================================================
+           LINKS
+        ===================================================== */
+
+        .auth-links {
+
+            margin-top: 16px;
+
+            font-size: 0.86rem;
+
+            color: var(--cinza);
+        }
+
+
+        .auth-links a {
+
+            color: var(--azul);
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            display: block;
+
+            margin: 6px 0;
+
+            font-weight: 500;
+        }
+
+
+        .auth-links a:hover {
+
+            text-decoration: underline;
+        }
+
+
+        /* =====================================================
+           MENSAGEM
+        ===================================================== */
+
+        #mensagem {
+
+            display: none;
+
+            margin-top: 14px;
+
+            padding: 10px 12px;
+
+            border-radius: 12px;
+
+            font-size: 0.82rem;
+
+            line-height: 1.4;
+        }
+
+
+        #mensagem.erro {
+
+            display: block;
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+            border:
+                1px solid
+                #fecaca;
+        }
+
+
+        #mensagem.sucesso {
+
+            display: block;
+
+            background: #dcfce7;
+
+            color: #166534;
+
+            border:
+                1px solid
+                #bbf7d0;
+        }
+
+
+        /* =====================================================
+           RODAPÉ
+        ===================================================== */
+
+        footer {
+
+            background: #ffffff;
+
+            color: #6b7280;
+
+            text-align: center;
+
+            padding: 10px;
+
+            font-size: 0.8rem;
+
+            border-top:
+                1px solid
+                rgba(209, 213, 219, 0.9);
+        }
+
+
+        footer span {
+
+            opacity: 0.9;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 480px) {
+
+            .auth-card {
+
+                padding:
+                    24px
+                    18px
+                    20px;
+            }
+
+            .titulo-escola {
+
+                font-size: 1.18rem;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         SPLASH
+    ===================================================== -->
+
+    <div id="splash-screen">
+
+        <div class="splash-logo-wrapper">
+
+            <div class="neon-ring"></div>
+
+            <img
+                src="imagem2.png"
+                alt="Logo"
+            >
+
+        </div>
+
+
+        <div
+            class="splash-byline"
+            id="splash-byline"
+        >
+
+            <span class="splash-cursor"></span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         AUTENTICAÇÃO
+    ===================================================== -->
+
+    <main class="auth-container">
+
+
+        <!-- =================================================
+             LOGIN
+        ================================================= -->
+
+        <div
+            id="card-login"
+            class="auth-card"
+        >
+
+            <img
+                src="imagem1.png"
+                alt="Logo Escola"
+                class="logo-escola"
+            >
+
+
+            <h1 class="titulo-escola">
+                EEMTI DRAGÃO DO MAR
+            </h1>
+
+
+            <p class="subtitulo-login">
+                Reserva de Recursos
+            </p>
+
+
+
+            <!-- E-MAIL -->
+
+            <div class="field-wrapper">
+
+                <div class="field-label">
+                    E-mail institucional
+                </div>
+
+
+                <div class="input-shell">
+
+                    <span class="icon">
+                        📧
+                    </span>
+
+                    <input
+                        type="email"
+                        id="login-email"
+                        placeholder="seu.email@prof.ce.gov.br"
+                        autocomplete="email"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SENHA -->
+
+            <div class="field-wrapper">
+
+                <div class="field-label">
+                    Senha
+                </div>
+
+
+                <div class="input-shell">
+
+                    <span class="icon">
+                        🔒
+                    </span>
+
+                    <input
+                        type="password"
+                        id="login-senha"
+                        placeholder="Sua senha de acesso"
+                        autocomplete="current-password"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- BOTÃO -->
+
+            <button
+                class="btn-principal"
+                id="btn-login"
+                onclick="fazerLogin()"
+            >
+
+                <span class="icon">
+                    ➡️
+                </span>
+
+                Acessar
+
+            </button>
+
+
+
+            <!-- LINKS -->
+
+            <div class="auth-links">
+
+                <a
+                    onclick="mostrarTela('card-cadastro')"
+                >
+                    Não tem conta? Criar agora
+                </a>
+
+
+                <a
+                    onclick="pedirRecuperacao()"
+                    style="color:#ea580c"
+                >
+                    Esqueci minha senha
+                </a>
+
+            </div>
+
+
+            <div id="mensagem"></div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             CADASTRO
+        ================================================= -->
+
+        <div
+            id="card-cadastro"
+            class="auth-card"
+            style="display:none"
+        >
+
+            <img
+                src="imagem1.png"
+                alt="Logo Escola"
+                class="logo-escola"
+            >
+
+
+            <h1 class="titulo-escola">
+                CRIAR CONTA
+            </h1>
+
+
+            <p class="subtitulo-login">
+                EEMTI DRAGÃO DO MAR
+            </p>
+
+
+
+            <!-- NOME -->
+
+            <div class="field-wrapper">
+
+                <div class="field-label">
+                    Nome completo
+                </div>
+
+
+                <div class="input-shell">
+
+                    <span class="icon">
+                        👤
+                    </span>
+
+                    <input
+                        type="text"
+                        id="cad-nome"
+                        placeholder="Seu nome completo"
+                        autocomplete="name"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- E-MAIL -->
+
+            <div class="field-wrapper">
+
+                <div class="field-label">
+                    E-mail
+                </div>
+
+
+                <div class="input-shell">
+
+                    <span class="icon">
+                        📧
+                    </span>
+
+                    <input
+                        type="email"
+                        id="cad-email"
+                        placeholder="E-mail institucional"
+                        autocomplete="email"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SENHA -->
+
+            <div class="field-wrapper">
+
+                <div class="field-label">
+                    Senha
+                </div>
+
+
+                <div class="input-shell">
+
+                    <span class="icon">
+                        🔑
+                    </span>
+
+                    <input
+                        type="password"
+                        id="cad-senha"
+                        placeholder="Mínimo 6 caracteres"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- CADASTRAR -->
+
+            <button
+                class="btn-principal"
+                onclick="criarConta()"
+            >
+
+                <span class="icon">
+                    ✅
+                </span>
+
+                Cadastrar
+
+            </button>
+
+
+
+            <div class="auth-links">
+
+                <a
+                    onclick="mostrarTela('card-login')"
+                >
+                    Já tenho conta? Entrar
+                </a>
+
+            </div>
+
+
+            <div id="mensagem-cadastro"></div>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         RODAPÉ
+    ===================================================== -->
+
+    <footer>
+
+        <span>
+            ⚙️ EEMTI DRAGÃO DO MAR -
+            ⚡ D.S.Montenegro
+        </span>
+
+    </footer>
+
+
+
+    <script>
+
+        /* =====================================================
+           SUPABASE
+        ===================================================== */
+
+        const SB_URL =
+            "https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+        const SB_KEY =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+
+        const supabaseClient =
+            supabase.createClient(
+                SB_URL,
+                SB_KEY
+            );
+
+
+
+        /* =====================================================
+           ELEMENTOS
+        ===================================================== */
+
+        const cardLogin =
+            document.getElementById(
+                "card-login"
+            );
+
+        const cardCadastro =
+            document.getElementById(
+                "card-cadastro"
+            );
+
+
+
+        /* =====================================================
+           TROCAR TELA
+        ===================================================== */
+
+        function mostrarTela(id) {
+
+            cardLogin.style.display = "none";
+
+            cardCadastro.style.display = "none";
+
+
+            document.getElementById(id)
+                .style.display = "block";
+
+
+            limparMensagens();
+        }
+
+
+
+        /* =====================================================
+           MENSAGENS
+        ===================================================== */
+
+        function mostrarMensagem(
+            texto,
+            tipo = "erro"
+        ) {
+
+            const mensagem =
+                document.getElementById(
+                    "mensagem"
+                );
+
+
+            mensagem.className = tipo;
+
+            mensagem.innerText = texto;
+
+            mensagem.style.display =
+                "block";
+        }
+
+
+        function mostrarMensagemCadastro(
+            texto,
+            tipo = "erro"
+        ) {
+
+            const mensagem =
+                document.getElementById(
+                    "mensagem-cadastro"
+                );
+
+
+            mensagem.className = tipo;
+
+            mensagem.innerText = texto;
+
+            mensagem.style.display =
+                "block";
+        }
+
+
+        function limparMensagens() {
+
+            const mensagens = [
+                "mensagem",
+                "mensagem-cadastro"
+            ];
+
+
+            mensagens.forEach(id => {
+
+                const elemento =
+                    document.getElementById(id);
+
+                elemento.style.display =
+                    "none";
+
+                elemento.innerText = "";
+
+            });
+
+        }
+
+
+
+        /* =====================================================
+           LOGIN
+        ===================================================== */
+
+        async function fazerLogin() {
+
+            limparMensagens();
+
+
+            const email =
+                document
+                    .getElementById("login-email")
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById("login-senha")
+                    .value;
+
+
+            if (!email) {
+
+                mostrarMensagem(
+                    "Digite seu e-mail institucional."
+                );
+
+                return;
+            }
+
+
+            if (!password) {
+
+                mostrarMensagem(
+                    "Digite sua senha."
+                );
+
+                return;
+            }
+
+
+            const botao =
+                document.getElementById(
+                    "btn-login"
+                );
+
+
+            botao.disabled = true;
+
+            botao.innerHTML =
+                "⏳ Entrando...";
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth
+                    .signInWithPassword({
+
+                        email: email,
+
+                        password: password
+
+                    });
+
+
+            botao.disabled = false;
+
+            botao.innerHTML =
+                '<span class="icon">➡️</span> Acessar';
+
+
+
+            if (error) {
+
+                mostrarMensagem(
+                    "E-mail ou senha incorretos."
+                );
+
+                console.error(
+                    "Erro de login:",
+                    error
+                );
+
+                return;
+            }
+
+
+
+            /*
+             * LOGIN CORRETO
+             *
+             * A partir daqui o sistema
+             * vai para o menu principal.
+             */
+
+            if (data.user) {
+
+                window.location.href =
+                    "menu.html";
+            }
+
+        }
+
+
+
+        /* =====================================================
+           CADASTRO
+        ===================================================== */
+
+        async function criarConta() {
+
+            limparMensagens();
+
+
+            const nome =
+                document
+                    .getElementById("cad-nome")
+                    .value
+                    .trim();
+
+
+            const email =
+                document
+                    .getElementById("cad-email")
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById("cad-senha")
+                    .value;
+
+
+
+            if (!nome) {
+
+                mostrarMensagemCadastro(
+                    "Digite seu nome completo."
+                );
+
+                return;
+            }
+
+
+            if (!email) {
+
+                mostrarMensagemCadastro(
+                    "Digite seu e-mail."
+                );
+
+                return;
+            }
+
+
+            if (password.length < 6) {
+
+                mostrarMensagemCadastro(
+                    "A senha precisa ter pelo menos 6 caracteres."
+                );
+
+                return;
+            }
+
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signUp({
+
+                    email: email,
+
+                    password: password,
+
+                    options: {
+
+                        data: {
+
+                            full_name: nome
+
+                        }
+
+                    }
+
+                });
+
+
+
+            if (error) {
+
+                console.error(
+                    "Erro no cadastro:",
+                    error
+                );
+
+
+                mostrarMensagemCadastro(
+                    error.message
+                );
+
+                return;
+            }
+
+
+
+            /*
+             * Dependendo da configuração
+             * do Supabase, o usuário poderá
+             * precisar confirmar o e-mail.
+             */
+
+            mostrarMensagemCadastro(
+                "Cadastro realizado! Verifique seu e-mail para confirmar a conta.",
+                "sucesso"
+            );
+
+
+            document
+                .getElementById("cad-senha")
+                .value = "";
+
+        }
+
+
+
+        /* =====================================================
+           RECUPERAÇÃO DE SENHA
+        ===================================================== */
+
+        async function pedirRecuperacao() {
+
+            limparMensagens();
+
+
+            const email =
+                document
+                    .getElementById("login-email")
+                    .value
+                    .trim();
+
+
+            if (!email) {
+
+                mostrarMensagem(
+                    "Digite seu e-mail institucional no campo acima."
+                );
+
+                return;
+            }
+
+
+
+            const redirectUrl =
+                window.location.href
+                    .replace(
+                        "index.html",
+                        "recuperar.html"
+                    );
+
+
+
+            const {
+                error
+            } =
+                await supabaseClient.auth
+                    .resetPasswordForEmail(
+                        email,
+                        {
+                            redirectTo:
+                                redirectUrl
+                        }
+                    );
+
+
+
+            if (error) {
+
+                console.error(
+                    "Erro na recuperação:",
+                    error
+                );
+
+
+                mostrarMensagem(
+                    "Não foi possível enviar o e-mail de recuperação."
+                );
+
+                return;
+            }
+
+
+
+            mostrarMensagem(
+                "E-mail de recuperação enviado! Verifique sua caixa de entrada.",
+                "sucesso"
+            );
+
+        }
+
+
+
+        /* =====================================================
+           ENTER PARA LOGIN
+        ===================================================== */
+
+        document
+            .getElementById("login-senha")
+            .addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+
+                        fazerLogin();
+
+                    }
+
+                }
+            );
+
+
+
+        /* =====================================================
+           SPLASH SCREEN
+        ===================================================== */
+
+        (function() {
+
+            const splash =
+                document.getElementById(
+                    "splash-screen"
+                );
+
+
+            const byline =
+                document.getElementById(
+                    "splash-byline"
+                );
+
+
+            const fullText =
+                "< / >  By D.S.Montenegro";
+
+
+            let i = 0;
+
+
+
+            setTimeout(
+                function typeChar() {
+
+                    if (
+                        i <
+                        fullText.length
+                    ) {
+
+                        byline.innerHTML =
+                            fullText.substring(
+                                0,
+                                i + 1
+                            )
+                            +
+                            '<span class="splash-cursor"></span>';
+
+
+                        i++;
+
+
+                        setTimeout(
+                            typeChar,
+                            68
+                        );
+
+                    }
+
+                    else {
+
+                        setTimeout(
+                            function() {
+
+                                splash.classList.add(
+                                    "fade-out"
+                                );
+
+
+                                setTimeout(
+                                    function() {
+
+                                        splash.style.display =
+                                            "none";
+
+                                    },
+                                    800
+                                );
+
+                            },
+                            900
+                        );
+
+                    }
+
+                },
+                1200
+            );
+
+        })();
+
+
+
+        /* =====================================================
+           VERIFICAR SESSÃO EXISTENTE
+        ===================================================== */
+
+        async function verificarSessao() {
+
+            const {
+                data: {
+                    session
+                }
+            } =
+                await supabaseClient.auth
+                    .getSession();
+
+
+            /*
+             * Se já estiver logado,
+             * não precisa fazer login novamente.
+             */
+
+            if (session) {
+
+                window.location.href =
+                    "menu.html";
+
+            }
+
+        }
+
+
+        verificarSessao();
+
+    </script>
+
+</body>
+</html>

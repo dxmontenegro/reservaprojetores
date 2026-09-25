@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Menu - EEMTI Dragão do Mar</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+
+<style>
+
+/* =========================================================
+   BASE
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+
+    min-height: 100vh;
+
+    font-family:
+        "Inter",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    color: #0f172a;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #e5edff 0,
+            #f3f4f6 45%,
+            #e5e7eb 100%
+        );
+
+    padding-bottom: 70px;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+header {
+
+    background:
+        rgba(248, 250, 252, 0.96);
+
+    padding: 12px 14px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    box-shadow:
+        0 10px 26px
+        rgba(15, 23, 42, 0.16);
+
+    backdrop-filter: blur(14px);
+
+    border-bottom:
+        1px solid
+        rgba(209, 213, 219, 0.9);
+}
+
+
+.header-top {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+
+.profile {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+
+.avatar {
+
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #2563eb
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: white;
+
+    font-size: .85rem;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 0 0 3px #e5e7eb;
+}
+
+
+.nome {
+
+    color: #111827;
+
+    font-size: .9rem;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    max-width: 230px;
+}
+
+
+.subnome {
+
+    margin-top: 2px;
+
+    color: #6b7280;
+
+    font-size: .7rem;
+}
+
+
+.btn-sair {
+
+    flex-shrink: 0;
+
+    border:
+        1px solid
+        rgba(209, 213, 219, .9);
+
+    background: #f9fafb;
+
+    color: #4b5563;
+
+    padding: 7px 13px;
+
+    border-radius: 999px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: .78rem;
+
+    font-weight: 600;
+
+    transition:
+        background .18s ease,
+        color .18s ease,
+        border-color .18s ease,
+        transform .08s ease;
+}
+
+
+.btn-sair:hover {
+
+    background: #fee2e2;
+
+    color: #b91c1c;
+
+    border-color: #fecaca;
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
+   CONTEÚDO
+========================================================= */
+
+main {
+
+    width: 100%;
+
+    max-width: 650px;
+
+    margin: 0 auto;
+
+    padding:
+        26px 14px 30px;
+}
+
+
+.titulo {
+
+    text-align: center;
+
+    margin:
+        0 0 6px;
+
+    color: #111827;
+
+    font-size: 1.4rem;
+
+    font-weight: 700;
+
+    letter-spacing: -.02em;
+}
+
+
+.subtitulo {
+
+    text-align: center;
+
+    margin:
+        0 0 26px;
+
+    color: #6b7280;
+
+    font-size: .84rem;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.menu {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+.menu-card {
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding:
+        20px 14px;
+
+    border:
+        1px solid
+        rgba(209, 213, 219, .95);
+
+    box-shadow:
+        0 12px 28px
+        rgba(15, 23, 42, .10);
+
+    cursor: pointer;
+
+    text-align: center;
+
+    user-select: none;
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+
+.menu-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 18px 35px
+        rgba(15, 23, 42, .16);
+
+    border-color:
+        #93c5fd;
+}
+
+
+.menu-card:active {
+
+    transform:
+        translateY(-1px);
+}
+
+
+.menu-icon {
+
+    width: 62px;
+    height: 62px;
+
+    margin:
+        0 auto 12px;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 2rem;
+}
+
+
+.menu-card h2 {
+
+    margin:
+        0 0 6px;
+
+    color: #111827;
+
+    font-size: .95rem;
+
+    line-height: 1.2;
+}
+
+
+.menu-card p {
+
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: .72rem;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   CORES DOS ÍCONES
+========================================================= */
+
+.azul {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dbeafe,
+            #bfdbfe
+        );
+}
+
+
+.verde {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dcfce7,
+            #bbf7d0
+        );
+}
+
+
+.roxo {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ede9fe,
+            #ddd6fe
+        );
+}
+
+
+.laranja {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffedd5,
+            #fed7aa
+        );
+}
+
+
+/* =========================================================
+   RODAPÉ
+========================================================= */
+
+footer {
+
+    position: fixed;
+
+    bottom: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    padding: 10px;
+
+    background: #ffffff;
+
+    border-top:
+        1px solid
+        rgba(209, 213, 219, .9);
+
+    text-align: center;
+
+    color: #6b7280;
+
+    font-size: .75rem;
+
+    z-index: 100;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 430px) {
+
+    main {
+
+        padding-left: 10px;
+
+        padding-right: 10px;
+    }
+
+
+    .menu {
+
+        gap: 10px;
+    }
+
+
+    .menu-card {
+
+        padding:
+            17px 9px;
+    }
+
+
+    .menu-icon {
+
+        width: 54px;
+        height: 54px;
+
+        font-size: 1.7rem;
+    }
+
+
+    .menu-card h2 {
+
+        font-size: .88rem;
+    }
+
+
+    .menu-card p {
+
+        font-size: .68rem;
+    }
+
+
+    .nome {
+
+        max-width: 170px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     CABEÇALHO
+======================================================== -->
+
+<header>
+
+    <div class="header-top">
+
+        <div class="profile">
+
+            <div
+                class="avatar"
+                id="avatar"
+            >
+                ED
+            </div>
+
+
+            <div>
+
+                <div
+                    class="nome"
+                    id="nome-professor"
+                >
+                    Carregando...
+                </div>
+
+
+                <div class="subnome">
+
+                    EEMTI Dragão do Mar
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="btn-sair"
+            onclick="fazerLogout()"
+        >
+
+            ⏏️ Sair
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =======================================================
+     CONTEÚDO
+======================================================== -->
+
+<main>
+
+    <h1 class="titulo">
+
+        Menu principal
+
+    </h1>
+
+
+    <p class="subtitulo">
+
+        Reserva e controle dos recursos da escola
+
+    </p>
+
+
+    <div class="menu">
+
+
+        <!-- =================================================
+             RESERVA
+        ================================================== -->
+
+        <div
+            class="menu-card"
+            onclick="abrirPagina('reservas.html')"
+        >
+
+            <div
+                class="menu-icon azul"
+            >
+                📅
+            </div>
+
+
+            <h2>
+
+                Reservar equipamento
+
+            </h2>
+
+
+            <p>
+
+                Consulte os horários e
+                faça uma nova reserva.
+
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             HISTÓRICO
+        ================================================== -->
+
+        <div
+            class="menu-card"
+            onclick="abrirPagina('historico.html')"
+        >
+
+            <div
+                class="menu-icon verde"
+            >
+                📋
+            </div>
+
+
+            <h2>
+
+                Histórico de uso
+
+            </h2>
+
+
+            <p>
+
+                Veja quem utilizou cada
+                equipamento, turma e tempo.
+
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             REGISTRAR OCORRÊNCIA
+        ================================================== -->
+
+        <div
+            class="menu-card"
+            onclick="abrirPagina('registro-uso.html')"
+        >
+
+            <div
+                class="menu-icon roxo"
+            >
+                📝
+            </div>
+
+
+            <h2>
+
+                Registrar ocorrência
+
+            </h2>
+
+
+            <p>
+
+                Relate problemas, danos
+                ou mau uso observado.
+
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             OCORRÊNCIAS
+        ================================================== -->
+
+        <div
+            class="menu-card"
+            onclick="abrirPagina('ocorrencias.html')"
+        >
+
+            <div
+                class="menu-icon laranja"
+            >
+                ⚠️
+            </div>
+
+
+            <h2>
+
+                Ocorrências
+
+            </h2>
+
+
+            <p>
+
+                Consulte os problemas
+                registrados nos equipamentos.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</main>
+
+
+<!-- =======================================================
+     RODAPÉ
+======================================================== -->
+
+<footer>
+
+    ⚙️ EEMTI DRAGÃO DO MAR
+    - ⚡ D.S.Montenegro
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   CONFIGURAÇÃO SUPABASE
+========================================================= */
+
+const SB_URL =
+    "https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+
+const SB_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ" +
+    "bdjqajzhlkdfagdfknmhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3" +
+    "NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7Faze" +
+    "NkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+
+const supabaseClient =
+    supabase.createClient(
+        SB_URL,
+        SB_KEY
+    );
+
+
+/* =========================================================
+   ABRIR PÁGINA
+========================================================= */
+
+function abrirPagina(pagina) {
+
+    window.location.href = pagina;
+
+}
+
+
+/* =========================================================
+   GERAR INICIAIS
+========================================================= */
+
+function gerarIniciais(nome) {
+
+    if (!nome) {
+
+        return "ED";
+
+    }
+
+
+    const partes =
+        nome
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+
+    if (partes.length >= 2) {
+
+        return (
+            partes[0].charAt(0) +
+            partes[1].charAt(0)
+        ).toUpperCase();
+
+    }
+
+
+    return nome
+        .substring(0, 2)
+        .toUpperCase();
+
+}
+
+
+/* =========================================================
+   CARREGAR USUÁRIO
+   IMPORTANTE:
+   Executa UMA ÚNICA VEZ.
+   Não existe setInterval.
+   Não existe reload.
+========================================================= */
+
+async function carregarUsuario() {
+
+    try {
+
+        const {
+
+            data,
+            error
+
+        } =
+        await supabaseClient
+            .auth
+            .getSession();
+
+
+        if (error) {
+
+            console.error(
+                "Erro ao verificar sessão:",
+                error
+            );
+
+            document.getElementById(
+                "nome-professor"
+            ).innerText =
+                "Usuário";
+
+
+            return;
+
+        }
+
+
+        const session =
+            data.session;
+
+
+        /*
+         * Se não houver sessão,
+         * volta para o login apenas uma vez.
+         */
+
+        if (!session) {
+
+            window.location.replace(
+                "index.html"
+            );
+
+            return;
+
+        }
+
+
+        const user =
+            session.user;
+
+
+        const nome =
+            user.user_metadata?.full_name ||
+            user.email ||
+            "Professor";
+
+
+        document.getElementById(
+            "nome-professor"
+        ).innerText =
+            nome;
+
+
+        document.getElementById(
+            "avatar"
+        ).innerText =
+            gerarIniciais(nome);
+
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro inesperado:",
+            erro
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function fazerLogout() {
+
+    const botao =
+        document.querySelector(
+            ".btn-sair"
+        );
+
+
+    botao.disabled = true;
+
+    botao.innerText =
+        "Saindo...";
+
+
+    try {
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .auth
+            .signOut();
+
+
+        if (error) {
+
+            console.error(
+                "Erro ao sair:",
+                error
+            );
+
+
+            botao.disabled = false;
+
+            botao.innerText =
+                "⏏️ Sair";
+
+            return;
+
+        }
+
+
+        /*
+         * replace evita voltar ao menu
+         * usando o botão voltar do navegador.
+         */
+
+        window.location.replace(
+            "index.html"
+        );
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro:",
+            erro
+        );
+
+
+        botao.disabled = false;
+
+        botao.innerText =
+            "⏏️ Sair";
+
+    }
+
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+   UMA ÚNICA EXECUÇÃO
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        carregarUsuario();
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
+
+
+

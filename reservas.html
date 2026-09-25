@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Reservas - EEMTI Dragão do Mar</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<style>
+
+/* =====================================================
+   VARIÁVEIS
+===================================================== */
+
+:root {
+
+    --verde: #16a34a;
+    --vermelho: #dc2626;
+    --azul: #2563eb;
+
+    --escuro: #0f172a;
+
+    --cinza: #64748b;
+
+    --bg: #f1f5f9;
+
+    --card: #ffffff;
+
+    --borda:
+        rgba(209,213,219,.9);
+
+    --raio:
+        18px;
+
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    font-family:
+        "Inter",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    color: var(--escuro);
+
+    background:
+
+        radial-gradient(
+            circle at top,
+            #dbeafe 0,
+            #f1f5f9 42%,
+            #e2e8f0 100%
+        );
+
+    padding-bottom: 70px;
+
+}
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
+
+header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    background:
+        rgba(248,250,252,.96);
+
+    backdrop-filter:
+        blur(14px);
+
+    border-bottom:
+        1px solid var(--borda);
+
+    box-shadow:
+        0 10px 26px
+        rgba(15,23,42,.12);
+
+    padding: 11px 13px;
+
+}
+
+
+.header-top {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 10px;
+
+}
+
+
+.titulo-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+}
+
+
+.icone-header {
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #2563eb
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 1.15rem;
+
+    box-shadow:
+        0 8px 20px
+        rgba(37,99,235,.25);
+
+}
+
+
+.titulo-header h1 {
+
+    margin: 0;
+
+    font-size: .92rem;
+
+}
+
+
+.titulo-header span {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--cinza);
+
+    font-size: .65rem;
+
+}
+
+
+.btn-menu {
+
+    border:
+        1px solid var(--borda);
+
+    background: white;
+
+    color: #475569;
+
+    border-radius: 999px;
+
+    padding: 7px 12px;
+
+    cursor: pointer;
+
+    font-size: .72rem;
+
+    font-weight: 600;
+
+    transition: .18s;
+
+}
+
+
+.btn-menu:hover {
+
+    background: #dbeafe;
+
+    color: #1d4ed8;
+
+    transform:
+        translateY(-1px);
+
+}
+
+
+/* =====================================================
+   CONTEÚDO
+===================================================== */
+
+main {
+
+    width: 100%;
+
+    max-width: 760px;
+
+    margin: auto;
+
+    padding: 14px 12px;
+
+}
+
+
+/* =====================================================
+   CONTROLES
+===================================================== */
+
+.controles {
+
+    background: white;
+
+    border:
+        1px solid var(--borda);
+
+    border-radius: 20px;
+
+    padding: 13px;
+
+    box-shadow:
+        0 12px 28px
+        rgba(15,23,42,.10);
+
+    margin-bottom: 16px;
+
+}
+
+
+.data-label {
+
+    display: block;
+
+    color: #475569;
+
+    font-size: .7rem;
+
+    font-weight: 600;
+
+    margin-bottom: 6px;
+
+}
+
+
+#data-selecionada {
+
+    width: 100%;
+
+    padding: 10px 11px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 13px;
+
+    background: #f8fafc;
+
+    color: #111827;
+
+    font-family: inherit;
+
+    font-size: .82rem;
+
+    outline: none;
+
+}
+
+
+#data-selecionada:focus {
+
+    border-color:
+        var(--azul);
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.10);
+
+}
+
+
+/* =====================================================
+   TURNO
+===================================================== */
+
+.turnos {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap: 8px;
+
+    margin-top: 9px;
+
+}
+
+
+.turno-btn {
+
+    border:
+        1px solid #cbd5e1;
+
+    background:
+        #f8fafc;
+
+    border-radius:
+        13px;
+
+    padding: 9px;
+
+    font-family: inherit;
+
+    font-size: .76rem;
+
+    font-weight: 700;
+
+    color: #64748b;
+
+    cursor: pointer;
+
+    transition: .18s;
+
+}
+
+
+.turno-btn:hover {
+
+    background:
+        #e2e8f0;
+
+}
+
+
+.turno-btn.active-integral {
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #bbf7d0
+        );
+
+    border-color:
+        #22c55e;
+
+    color:
+        #064e3b;
+
+    box-shadow:
+        0 8px 20px
+        rgba(34,197,94,.30);
+
+}
+
+
+.turno-btn.active-noturno {
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #bfdbfe
+        );
+
+    border-color:
+        #2563eb;
+
+    color:
+        #0f172a;
+
+    box-shadow:
+        0 8px 20px
+        rgba(37,99,235,.30);
+
+}
+
+
+/* =====================================================
+   LEGENDA
+===================================================== */
+
+.legenda {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin:
+        0 2px 13px;
+
+}
+
+
+.legenda-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    font-size: .62rem;
+
+    color: #64748b;
+
+}
+
+
+.dot {
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+}
+
+
+.dot.verde {
+    background: #22c55e;
+}
+
+
+.dot.azul {
+    background: #2563eb;
+}
+
+
+.dot.vermelho {
+    background: #dc2626;
+}
+
+
+/* =====================================================
+   SEÇÕES
+===================================================== */
+
+.secao {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin:
+        19px 3px 9px;
+
+    font-size: .9rem;
+
+}
+
+
+.secao:first-child {
+    margin-top: 3px;
+}
+
+
+/* =====================================================
+   CARD DO RECURSO
+===================================================== */
+
+.recurso-card {
+
+    background: white;
+
+    margin:
+        9px 0;
+
+    border-radius: 19px;
+
+    border:
+        1px solid var(--borda);
+
+    box-shadow:
+        0 12px 27px
+        rgba(15,23,42,.09);
+
+    overflow: hidden;
+
+}
+
+
+/* =====================================================
+   NOME DO RECURSO
+===================================================== */
+
+.recurso-nome {
+
+    padding:
+        10px 12px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+}
+
+
+.recurso-icone {
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 1.1rem;
+
+}
+
+
+.recurso-nome-texto {
+
+    font-size: .82rem;
+
+    font-weight: 700;
+
+}
+
+
+.status-dot {
+
+    margin-left: auto;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(34,197,94,.16);
+
+}
+
+
+/* =====================================================
+   GRADE DOS TEMPOS
+===================================================== */
+
+.grade-tempos {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3,minmax(0,1fr));
+
+    gap: 9px;
+
+    padding:
+        10px;
+
+}
+
+
+.tempo-btn {
+
+    min-height: 78px;
+
+    border: none;
+
+    border-radius: 15px;
+
+    color: white;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+    padding: 6px;
+
+    text-align: center;
+
+    font-family: inherit;
+
+    box-shadow:
+        0 9px 19px
+        rgba(15,23,42,.28);
+
+    transition:
+        .16s;
+
+}
+
+
+.tempo-btn:hover {
+
+    transform:
+        translateY(-2px);
+
+    filter:
+        brightness(1.05);
+
+}
+
+
+.tempo-btn:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+.tempo-btn span {
+
+    font-size: .77rem;
+
+    font-weight: 700;
+
+    margin-bottom: 4px;
+
+}
+
+
+.tempo-btn small {
+
+    font-size: .57rem;
+
+    text-transform:
+        uppercase;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    opacity: .95;
+
+    max-width: 95%;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.verde {
+
+    background:
+        linear-gradient(
+            135deg,
+            #16a34a,
+            #4ade80
+        );
+
+}
+
+
+.vermelho {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #f97373
+        );
+
+}
+
+
+.azul {
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #60a5fa
+        );
+
+}
+
+
+/* =====================================================
+   MANUTENÇÃO
+===================================================== */
+
+.aviso-piscando {
+
+    color:
+        #dc2626;
+
+    font-size: .65rem;
+
+    font-weight: 800;
+
+    animation:
+        piscar 1s infinite;
+
+}
+
+
+@keyframes piscar {
+
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+
+}
+
+
+/* =====================================================
+   MODAL DE RESERVA
+===================================================== */
+
+.modal {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(15,23,42,.42);
+
+    z-index: 1000;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 16px;
+
+    backdrop-filter:
+        blur(6px);
+
+}
+
+
+.modal-content {
+
+    width: 100%;
+
+    max-width: 430px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f8fafc
+        );
+
+    border-radius: 22px;
+
+    padding: 21px 18px 17px;
+
+    box-shadow:
+        0 25px 55px
+        rgba(15,23,42,.32);
+
+    border:
+        1px solid var(--borda);
+
+}
+
+
+.modal-titulo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 3px;
+
+}
+
+
+.modal-titulo h3 {
+
+    margin: 0;
+
+    font-size: .98rem;
+
+}
+
+
+.modal-tempo {
+
+    margin: 0;
+
+    color: var(--cinza);
+
+    font-size: .75rem;
+
+}
+
+
+.chips {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    justify-content: center;
+
+    margin:
+        16px 0;
+
+}
+
+
+.chip {
+
+    border:
+        1px solid #cbd5e1;
+
+    background:
+        #f8fafc;
+
+    border-radius:
+        999px;
+
+    padding:
+        7px 13px;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: .72rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.chip:hover {
+
+    background:
+        #dbeafe;
+
+}
+
+
+.chip.selected {
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #22c55e
+        );
+
+    border-color:
+        #2563eb;
+
+    color: white;
+
+    box-shadow:
+        0 8px 18px
+        rgba(37,99,235,.30);
+
+}
+
+
+.modal-actions {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 8px;
+
+}
+
+
+.modal-actions button {
+
+    border: none;
+
+    border-radius:
+        999px;
+
+    padding:
+        10px;
+
+    font-family: inherit;
+
+    font-size: .74rem;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.btn-voltar-modal {
+
+    background:
+        #f1f5f9;
+
+    color:
+        #475569;
+
+    border:
+        1px solid #cbd5e1 !important;
+
+}
+
+
+.btn-confirmar {
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #86efac
+        );
+
+    color:
+        #064e3b;
+
+    box-shadow:
+        0 10px 23px
+        rgba(34,197,94,.35);
+
+}
+
+
+/* =====================================================
+   MODAIS DE AVISO
+===================================================== */
+
+.aviso-box {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,.58);
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    z-index: 2000;
+
+    padding: 15px;
+
+}
+
+
+.aviso-content {
+
+    width: 100%;
+
+    max-width: 370px;
+
+    background:
+        #020617;
+
+    border:
+        1px solid #1e293b;
+
+    border-radius:
+        17px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    box-shadow:
+        0 25px 50px
+        rgba(0,0,0,.55);
+
+}
+
+
+.aviso-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    color:
+        #f87171;
+
+    font-size: .98rem;
+
+    margin-bottom: 10px;
+
+}
+
+
+.aviso-content p {
+
+    color:
+        #e5e7eb;
+
+    font-size: .76rem;
+
+    line-height: 1.5;
+
+}
+
+
+.aviso-content strong {
+
+    color:
+        #38bdf8;
+
+}
+
+
+.aviso-content button {
+
+    border:
+        1px solid #334155;
+
+    background:
+        #1e293b;
+
+    color:
+        #e5e7eb;
+
+    border-radius:
+        999px;
+
+    padding:
+        8px 17px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+}
+
+
+.aviso-content button:hover {
+
+    background:
+        #334155;
+
+}
+
+
+/* =====================================================
+   CARREGAMENTO
+===================================================== */
+
+#carregando {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    background:
+        rgba(248,250,252,.96);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
+
+.spinner {
+
+    width: 35px;
+    height: 35px;
+
+    border-radius: 50%;
+
+    border:
+        4px solid #dbeafe;
+
+    border-top-color:
+        #2563eb;
+
+    animation:
+        girar .8s linear infinite;
+
+}
+
+
+@keyframes girar {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+
+#carregando span {
+
+    color:
+        var(--cinza);
+
+    font-size: .75rem;
+
+}
+
+
+/* =====================================================
+   RODAPÉ
+===================================================== */
+
+footer {
+
+    position: fixed;
+
+    bottom: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    padding: 10px;
+
+    background: white;
+
+    border-top:
+        1px solid var(--borda);
+
+    text-align: center;
+
+    color: var(--cinza);
+
+    font-size: .68rem;
+
+    z-index: 100;
+
+}
+
+
+/* =====================================================
+   CELULAR
+===================================================== */
+
+@media(max-width:640px) {
+
+    .grade-tempos {
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+    }
+
+}
+
+
+@media(max-width:350px) {
+
+    .grade-tempos {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     CARREGAMENTO
+===================================================== -->
+
+<div id="carregando">
+
+    <div class="spinner"></div>
+
+    <span>
+        Verificando acesso...
+    </span>
+
+</div>
+
+
+<!-- =====================================================
+     CABEÇALHO
+===================================================== -->
+
+<header>
+
+    <div class="header-top">
+
+        <div class="titulo-header">
+
+            <div class="icone-header">
+                🎯
+            </div>
+
+            <div>
+
+                <h1>
+                    Reservar Recursos
+                </h1>
+
+                <span>
+                    EEMTI Dragão do Mar
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="btn-menu"
+            onclick="voltarMenu()"
+        >
+            ← Menu
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     CONTEÚDO
+===================================================== -->
+
+<main>
+
+
+    <!-- CONTROLES -->
+
+    <div class="controles">
+
+        <label
+            class="data-label"
+            for="data-selecionada"
+        >
+            📅 Data da reserva
+        </label>
+
+
+        <input
+            type="date"
+            id="data-selecionada"
+        >
+
+
+        <div class="turnos">
+
+            <button
+                id="btn-integral"
+                class="turno-btn active-integral"
+                onclick="setTurno('integral')"
+            >
+                ☀️ Integral
+            </button>
+
+
+            <button
+                id="btn-noturno"
+                class="turno-btn"
+                onclick="setTurno('noturno')"
+            >
+                🌙 Noturno
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- LEGENDA -->
+
+    <div class="legenda">
+
+        <div class="legenda-item">
+
+            <span class="dot verde"></span>
+
+            Livre
+
+        </div>
+
+
+        <div class="legenda-item">
+
+            <span class="dot azul"></span>
+
+            Sua reserva
+
+        </div>
+
+
+        <div class="legenda-item">
+
+            <span class="dot vermelho"></span>
+
+            Ocupado
+
+        </div>
+
+    </div>
+
+
+    <!-- RECURSOS -->
+
+    <div id="container-recursos"></div>
+
+
+</main>
+
+
+<!-- =====================================================
+     MODAL DE RESERVA
+===================================================== -->
+
+<div
+    id="modal-reserva"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+
+        <div class="modal-titulo">
+
+            <span>
+                🎯
+            </span>
+
+            <h3 id="m-titulo">
+                Recurso
+            </h3>
+
+        </div>
+
+
+        <p
+            id="m-tempo"
+            class="modal-tempo"
+        >
+            Tempo
+        </p>
+
+
+        <div
+            id="chips-turmas"
+            class="chips"
+        ></div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="btn-voltar-modal"
+                onclick="fecharModal()"
+            >
+                Voltar
+            </button>
+
+
+            <button
+                class="btn-confirmar"
+                onclick="salvarReserva()"
+            >
+                Confirmar Reserva
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     AVISO RESERVA OCUPADA
+===================================================== -->
+
+<div
+    id="aviso-reserva"
+    class="aviso-box"
+>
+
+    <div class="aviso-content">
+
+        <div class="aviso-header">
+
+            <span>
+                ⛔
+            </span>
+
+            <strong>
+                Horário Bloqueado
+            </strong>
+
+        </div>
+
+
+        <p
+            id="aviso-texto"
+        ></p>
+
+
+        <button
+            onclick="fecharAviso()"
+        >
+            OK
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONFIRMAR CANCELAMENTO
+===================================================== -->
+
+<div
+    id="confirm-cancelar"
+    class="aviso-box"
+>
+
+    <div class="aviso-content">
+
+        <div class="aviso-header">
+
+            <span>
+                ⚠️
+            </span>
+
+            <strong>
+                Cancelar Reserva
+            </strong>
+
+        </div>
+
+
+        <p>
+
+            Deseja realmente cancelar
+            esta reserva?
+
+        </p>
+
+
+        <div
+            style="
+                display:flex;
+                gap:10px;
+                justify-content:center;
+            "
+        >
+
+            <button
+                onclick="fecharConfirmCancelamento()"
+            >
+                Voltar
+            </button>
+
+
+            <button
+                onclick="confirmarCancelamento()"
+                style="
+                    background:#7f1d1d;
+                    border-color:#991b1b;
+                "
+            >
+                Cancelar Reserva
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     RODAPÉ
+===================================================== -->
+
+<footer>
+
+    ⚙️ EEMTI DRAGÃO DO MAR
+    -
+    ⚡ D.S.Montenegro
+
+</footer>
+
+
+<script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SB_URL =
+    "https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+
+const SB_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+
+const supabaseClient =
+    supabase.createClient(
+        SB_URL,
+        SB_KEY
+    );
+
+
+/* =====================================================
+   ESTADO
+===================================================== */
+
+let turnoAtual =
+    "integral";
+
+
+let dataAtual =
+    new Date()
+        .toISOString()
+        .split("T")[0];
+
+
+let itemSel = null;
+
+let tempoSel = null;
+
+let turmaSel = null;
+
+let idCancelamento = null;
+
+
+/* =====================================================
+   TURMAS
+===================================================== */
+
+const turmas = {
+
+    integral: [
+
+        "1ºA",
+        "1ºB",
+        "1ºC",
+
+        "2ºA",
+        "2ºB",
+        "2ºC",
+
+        "3ºA",
+        "3B",
+
+        "Lab",
+        "MULTIMEIOS",
+
+        "Outro"
+
+    ],
+
+
+    noturno: [
+
+        "1ºD",
+        "2ºD",
+        "3ºC",
+
+        "Lab",
+
+        "Outro"
+
+    ]
+
+};
+
+
+/* =====================================================
+   VERIFICAR LOGIN
+===================================================== */
+
+async function verificarUsuario() {
+
+    const {
+        data: { user }
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "index.html";
+
+        return null;
+
+    }
+
+
+    return user;
+
+}
+
+
+/* =====================================================
+   ÍCONE
+===================================================== */
+
+function getIconePorNome(nome) {
+
+    if (nome.includes("Notebook"))
+        return "💻";
+
+
+    if (nome.includes("Projetor"))
+        return "📽️";
+
+
+    if (nome === "TV")
+        return "📺";
+
+
+    if (nome.includes("Informática"))
+        return "🖥️";
+
+
+    if (nome.includes("Ciências"))
+        return "🔬";
+
+
+    if (nome.includes("Biblioteca"))
+        return "📚";
+
+
+    return "📦";
+
+}
+
+
+/* =====================================================
+   COR
+===================================================== */
+
+function getCorPorNome(nome) {
+
+    if (nome.includes("Notebook"))
+        return "#2563eb";
+
+
+    if (nome.includes("Projetor"))
+        return "#7c3aed";
+
+
+    if (nome === "TV")
+        return "#ea580c";
+
+
+    if (nome.includes("Informática"))
+        return "#059669";
+
+
+    if (nome.includes("Ciências"))
+        return "#dc2626";
+
+
+    if (nome.includes("Biblioteca"))
+        return "#ca8a04";
+
+
+    return "#374151";
+
+}
+
+
+/* =====================================================
+   ESCAPAR HTML
+===================================================== */
+
+function escaparHTML(valor) {
+
+    if (valor === null ||
+        valor === undefined)
+        return "";
+
+
+    return String(valor)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   RENDERIZAR ITEM
+===================================================== */
+
+function renderItem(
+    item,
+    reservas,
+    user,
+    container
+) {
+
+
+    const card =
+        document.createElement(
+            "div"
+        );
+
+
+    card.className =
+        "recurso-card";
+
+
+    let temposHtml = "";
+
+
+    /*
+     * Integral:
+     * 1 até 9
+     *
+     * Noturno:
+     * 1 até 4
+     */
+
+    const listaTempos =
+        turnoAtual === "integral"
+
+        ? [1,2,3,4,5,6,7,8,9]
+
+        : [1,2,3,4];
+
+
+    listaTempos.forEach(
+        t => {
+
+
+            /*
+             * No banco:
+             *
+             * Integral = 1...9
+             *
+             * Noturno = 10...13
+             */
+
+            const tBanco =
+                turnoAtual === "noturno"
+                    ? t + 9
+                    : t;
+
+
+            const res =
+                reservas.find(
+                    r =>
+                        r.item_id === item.id &&
+                        r.tempo_aula === tBanco
+                );
+
+
+            let cor =
+                "verde";
+
+
+            let txt =
+                "Livre";
+
+
+            let acao;
+
+
+            /*
+             * LIVRE
+             */
+
+            if (!res) {
+
+                acao =
+                    `abrirModal(
+                        '${item.id}',
+                        '${escaparHTML(item.nome)}',
+                        ${tBanco},
+                        ${t}
+                    )`;
+
+            }
+
+
+            /*
+             * RESERVADO
+             */
+
+            else {
+
+                const eMeu =
+                    res.professor_id === user.id;
+
+
+                if (eMeu) {
+
+                    cor =
+                        "azul";
+
+
+                    txt =
+                        "Sua Reserva";
+
+
+                    acao =
+                        `cancelar('${res.id}')`;
+
+                }
+
+                else {
+
+                    cor =
+                        "vermelho";
+
+
+                    txt =
+                        res.nome_professor ||
+                        "Reservado";
+
+
+                    const nome =
+                        escaparHTML(
+                            res.nome_professor ||
+                            "Professor"
+                        );
+
+
+                    const turma =
+                        escaparHTML(
+                            res.turma_local ||
+                            "Não informada"
+                        );
+
+
+                    acao =
+                        `mostrarAvisoReserva(
+                            '${nome}',
+                            '${turma}'
+                        )`;
+
+                }
+
+            }
+
+
+            temposHtml += `
+
+                <button
+                    class="tempo-btn ${cor}"
+                    onclick="${acao}"
+                >
+
+                    <span>
+                        ${t}º Tempo
+                    </span>
+
+                    <small>
+                        ${escaparHTML(txt)}
+                    </small>
+
+                </button>
+
+            `;
+
+        }
+    );
+
+
+    const icone =
+        getIconePorNome(
+            item.nome
+        );
+
+
+    const cor =
+        getCorPorNome(
+            item.nome
+        );
+
+
+    card.innerHTML = `
+
+        <div class="recurso-nome">
+
+
+            <div
+                class="recurso-icone"
+                style="
+                    background:${cor}20;
+                    color:${cor};
+                "
+            >
+                ${icone}
+            </div>
+
+
+            <div class="recurso-nome-texto">
+
+                ${escaparHTML(item.nome)}
+
+                ${
+                    item.inoperante
+
+                    ? `
+                        <span
+                            class="aviso-piscando"
+                        >
+                            ⚠️ MANUTENÇÃO
+                        </span>
+                    `
+
+                    : ""
+                }
+
+            </div>
+
+
+            <span
+                class="status-dot"
+            ></span>
+
+
+        </div>
+
+
+        <div class="grade-tempos">
+
+            ${temposHtml}
+
+        </div>
+
+    `;
+
+
+    container.appendChild(
+        card
+    );
+
+}
+
+
+/* =====================================================
+   CARREGAR DADOS
+===================================================== */
+
+async function carregarDados() {
+
+    const dataSel =
+        document
+            .getElementById(
+                "data-selecionada"
+            )
+            .value;
+
+
+    const container =
+        document
+            .getElementById(
+                "container-recursos"
+            );
+
+
+    container.innerHTML = `
+
+        <div
+            style="
+                text-align:center;
+                padding:30px;
+                color:#64748b;
+                font-size:.75rem;
+            "
+        >
+            <div class="spinner"></div>
+            Carregando recursos...
+        </div>
+
+    `;
+
+
+    /*
+     * Buscar itens
+     */
+
+    const {
+        data: itens,
+        error: erroItens
+    } =
+        await supabaseClient
+
+            .from("itens_escola")
+
+            .select("*")
+
+            .order("ordem_visual");
+
+
+    if (erroItens) {
+
+        console.error(
+            erroItens
+        );
+
+
+        container.innerHTML = `
+
+            <div
+                style="
+                    background:white;
+                    padding:20px;
+                    border-radius:18px;
+                    text-align:center;
+                    color:#dc2626;
+                "
+            >
+                ⚠️ Erro ao carregar os equipamentos.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+     * Buscar reservas
+     */
+
+    const {
+        data: reservas,
+        error: erroReservas
+    } =
+        await supabaseClient
+
+            .from("reservas_recursos")
+
+            .select("*")
+
+            .eq(
+                "data_reserva",
+                dataSel
+            );
+
+
+    if (erroReservas) {
+
+        console.error(
+            erroReservas
+        );
+
+        container.innerHTML = `
+
+            <div
+                style="
+                    background:white;
+                    padding:20px;
+                    border-radius:18px;
+                    text-align:center;
+                    color:#dc2626;
+                "
+            >
+                ⚠️ Erro ao carregar as reservas.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    const {
+        data: { user }
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+    /*
+     * Equipamentos
+     */
+
+    const equipamentos =
+        itens.filter(
+            i =>
+
+                i.nome.includes("Projetor") ||
+
+                i.nome.includes("Notebook") ||
+
+                i.nome === "TV"
+
+        );
+
+
+    /*
+     * Ambientes
+     */
+
+    const ambientes =
+        itens.filter(
+            i =>
+
+                i.nome.includes("Informática") ||
+
+                i.nome.includes("Ciências") ||
+
+                i.nome.includes("Biblioteca")
+
+        );
+
+
+    /*
+     * Equipamentos
+     */
+
+    if (equipamentos.length > 0) {
+
+        container.innerHTML += `
+
+            <h2 class="secao">
+                💻 Equipamentos
+            </h2>
+
+        `;
+
+
+        equipamentos.forEach(
+            item => {
+
+                renderItem(
+                    item,
+                    reservas || [],
+                    user,
+                    container
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Ambientes
+     */
+
+    if (ambientes.length > 0) {
+
+        container.innerHTML += `
+
+            <h2 class="secao">
+                🏫 Ambientes
+            </h2>
+
+        `;
+
+
+        ambientes.forEach(
+            item => {
+
+                renderItem(
+                    item,
+                    reservas || [],
+                    user,
+                    container
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Nenhum recurso
+     */
+
+    if (
+        equipamentos.length === 0 &&
+        ambientes.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div
+                style="
+                    background:white;
+                    border-radius:18px;
+                    padding:30px;
+                    text-align:center;
+                    color:#64748b;
+                "
+            >
+                📦 Nenhum recurso encontrado.
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   ABRIR MODAL
+===================================================== */
+
+function abrirModal(
+    id,
+    nome,
+    tB,
+    tV
+) {
+
+    itemSel =
+        id;
+
+
+    tempoSel =
+        tB;
+
+
+    turmaSel =
+        null;
+
+
+    document
+        .getElementById(
+            "m-titulo"
+        )
+        .innerText =
+        nome;
+
+
+    document
+        .getElementById(
+            "m-tempo"
+        )
+        .innerText =
+        `${tV}º Tempo`;
+
+
+    const chips =
+        document
+            .getElementById(
+                "chips-turmas"
+            );
+
+
+    chips.innerHTML = "";
+
+
+    turmas[
+        turnoAtual
+    ].forEach(
+        turma => {
+
+            const btn =
+                document.createElement(
+                    "button"
+                );
+
+
+            btn.className =
+                "chip";
+
+
+            btn.innerText =
+                turma;
+
+
+            btn.onclick =
+                function() {
+
+                    selTurma(
+                        this,
+                        turma
+                    );
+
+                };
+
+
+            chips.appendChild(
+                btn
+            );
+
+        }
+    );
+
+
+    document
+        .getElementById(
+            "modal-reserva"
+        )
+        .style.display =
+        "flex";
+
+}
+
+
+/* =====================================================
+   SELECIONAR TURMA
+===================================================== */
+
+function selTurma(
+    btn,
+    turma
+) {
+
+    document
+        .querySelectorAll(
+            ".chip"
+        )
+        .forEach(
+            c =>
+                c.classList.remove(
+                    "selected"
+                )
+        );
+
+
+    btn.classList.add(
+        "selected"
+    );
+
+
+    turmaSel =
+        turma;
+
+}
+
+
+/* =====================================================
+   SALVAR RESERVA
+===================================================== */
+
+async function salvarReserva() {
+
+    if (!turmaSel) {
+
+        alert(
+            "Selecione a turma!"
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data: { user }
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    /*
+     * Verificação extra:
+     * evita tentar inserir uma
+     * reserva duplicada.
+     */
+
+    const dataReserva =
+        document
+            .getElementById(
+                "data-selecionada"
+            )
+            .value;
+
+
+    const {
+        data: existente,
+        error: erroBusca
+    } =
+        await supabaseClient
+
+            .from("reservas_recursos")
+
+            .select("id")
+
+            .eq(
+                "item_id",
+                itemSel
+            )
+
+            .eq(
+                "data_reserva",
+                dataReserva
+            )
+
+            .eq(
+                "tempo_aula",
+                tempoSel
+            )
+            .maybeSingle();
+
+
+    if (erroBusca) {
+
+        console.error(
+            erroBusca
+        );
+
+        alert(
+            "Não foi possível verificar este horário."
+        );
+
+        return;
+
+    }
+
+
+    if (existente) {
+
+        alert(
+            "Este horário já foi ocupado!"
+        );
+
+        fecharModal();
+
+        carregarDados();
+
+        return;
+
+    }
+
+
+    /*
+     * Inserir
+     */
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .from("reservas_recursos")
+
+            .insert([
+
+                {
+
+                    item_id:
+                        itemSel,
+
+                    professor_id:
+                        user.id,
+
+                    nome_professor:
+                        user.user_metadata?.full_name ||
+                        user.email,
+
+                    turma_local:
+                        turmaSel,
+
+                    data_reserva:
+                        dataReserva,
+
+                    tempo_aula:
+                        tempoSel,
+
+                    turno:
+                        turnoAtual
+
+                }
+
+            ]);
+
+
+    if (error) {
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            "Não foi possível realizar a reserva."
+        );
+
+        return;
+
+    }
+
+
+    fecharModal();
+
+
+    await carregarDados();
+
+
+    alert(
+        "✅ Reserva realizada com sucesso!"
+    );
+
+}
+
+
+/* =====================================================
+   CANCELAR
+===================================================== */
+
+function cancelar(id) {
+
+    abrirConfirmCancelamento(
+        id
+    );
+
+}
+
+
+/* =====================================================
+   ABRIR CONFIRMAÇÃO
+===================================================== */
+
+function abrirConfirmCancelamento(
+    id
+) {
+
+    idCancelamento =
+        id;
+
+
+    tocarSomBloqueio();
+
+
+    document
+        .getElementById(
+            "confirm-cancelar"
+        )
+        .style.display =
+        "flex";
+
+}
+
+
+/* =====================================================
+   FECHAR CONFIRMAÇÃO
+===================================================== */
+
+function fecharConfirmCancelamento() {
+
+    document
+        .getElementById(
+            "confirm-cancelar"
+        )
+        .style.display =
+        "none";
+
+
+    idCancelamento =
+        null;
+
+}
+
+
+/* =====================================================
+   CONFIRMAR CANCELAMENTO
+===================================================== */
+
+async function confirmarCancelamento() {
+
+    if (!idCancelamento)
+        return;
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "reservas_recursos"
+            )
+
+            .delete()
+
+            .eq(
+                "id",
+                idCancelamento
+            );
+
+
+    if (error) {
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            "Não foi possível cancelar a reserva."
+        );
+
+        return;
+
+    }
+
+
+    fecharConfirmCancelamento();
+
+
+    await carregarDados();
+
+
+    alert(
+        "Reserva cancelada."
+    );
+
+}
+
+
+/* =====================================================
+   FECHAR MODAL
+===================================================== */
+
+function fecharModal() {
+
+    document
+        .getElementById(
+            "modal-reserva"
+        )
+        .style.display =
+        "none";
+
+
+    itemSel =
+        null;
+
+    tempoSel =
+        null;
+
+    turmaSel =
+        null;
+
+}
+
+
+/* =====================================================
+   AVISO DE RESERVA
+===================================================== */
+
+function mostrarAvisoReserva(
+    nome,
+    turma
+) {
+
+    tocarSomBloqueio();
+
+
+    const texto = `
+
+        📌 Ocupado por
+        <strong>${nome}</strong>
+
+        <br>
+
+        🏫 Turma:
+        <strong>${turma}</strong>
+
+        <br><br>
+
+        🔒 Somente o(a) professor(a)
+        <strong>${nome}</strong>
+        pode liberar este tempo!
+
+    `;
+
+
+    document
+        .getElementById(
+            "aviso-texto"
+        )
+        .innerHTML =
+        texto;
+
+
+    document
+        .getElementById(
+            "aviso-reserva"
+        )
+        .style.display =
+        "flex";
+
+}
+
+
+/* =====================================================
+   FECHAR AVISO
+===================================================== */
+
+function fecharAviso() {
+
+    document
+        .getElementById(
+            "aviso-reserva"
+        )
+        .style.display =
+        "none";
+
+}
+
+
+/* =====================================================
+   SOM
+===================================================== */
+
+function tocarSomBloqueio() {
+
+    try {
+
+        const audio =
+            new Audio(
+                "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+            );
+
+
+        audio.volume =
+            .35;
+
+
+        audio.play()
+            .catch(
+                () => {}
+            );
+
+    }
+
+    catch(e) {
+
+        console.log(e);
+
+    }
+
+}
+
+
+/* =====================================================
+   TROCAR TURNO
+===================================================== */
+
+function setTurno(
+    turno
+) {
+
+    turnoAtual =
+        turno;
+
+
+    const integral =
+        document
+            .getElementById(
+                "btn-integral"
+            );
+
+
+    const noturno =
+        document
+            .getElementById(
+                "btn-noturno"
+            );
+
+
+    integral.classList.toggle(
+        "active-integral",
+        turno === "integral"
+    );
+
+
+    noturno.classList.toggle(
+        "active-noturno",
+        turno === "noturno"
+    );
+
+
+    carregarDados();
+
+}
+
+
+/* =====================================================
+   VOLTAR AO MENU
+===================================================== */
+
+function voltarMenu() {
+
+    window.location.href =
+        "menu.html";
+
+}
+
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+async function iniciar() {
+
+    const user =
+        await verificarUsuario();
+
+
+    if (!user)
+        return;
+
+
+    const data =
+        document
+            .getElementById(
+                "data-selecionada"
+            );
+
+
+    data.value =
+        dataAtual;
+
+
+    data.addEventListener(
+        "change",
+        carregarDados
+    );
+
+
+    await carregarDados();
+
+
+    document
+        .getElementById(
+            "carregando"
+        )
+        .style.display =
+        "none";
+
+}
+
+
+iniciar();
+
+</script>
+
+
+</body>
+</html>

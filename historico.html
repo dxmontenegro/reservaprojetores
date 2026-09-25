@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Histórico dos Equipamentos - EEMTI Dragão do Mar</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #e5edff 0,
+                    #f3f4f6 45%,
+                    #e5e7eb 100%
+                );
+
+            color: #0f172a;
+            padding-bottom: 70px;
+        }
+
+        /* =========================
+           CABEÇALHO
+        ========================= */
+
+        header {
+            background: rgba(248,250,252,.96);
+
+            padding: 13px 14px;
+
+            position: sticky;
+            top: 0;
+
+            z-index: 100;
+
+            box-shadow:
+                0 10px 26px rgba(15,23,42,.16);
+
+            backdrop-filter: blur(14px);
+
+            border-bottom:
+                1px solid #d1d5db;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-voltar {
+
+            width: 40px;
+            height: 40px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: #e5e7eb;
+
+            color: #374151;
+
+            font-size: 1.25rem;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+        .btn-voltar:hover {
+
+            background: #dbeafe;
+
+            color: #2563eb;
+
+            transform: translateX(-2px);
+        }
+
+        .titulo-header {
+            flex: 1;
+        }
+
+        .titulo-header h1 {
+
+            margin: 0;
+
+            font-size: 1.05rem;
+        }
+
+        .titulo-header p {
+
+            margin: 3px 0 0;
+
+            font-size: .74rem;
+
+            color: #6b7280;
+        }
+
+        .btn-atualizar {
+
+            width: 40px;
+            height: 40px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: #dbeafe;
+
+            color: #2563eb;
+
+            font-size: 1.05rem;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+        .btn-atualizar:hover {
+
+            transform: rotate(180deg);
+
+            background: #bfdbfe;
+        }
+
+
+        /* =========================
+           CONTEÚDO
+        ========================= */
+
+        main {
+
+            width: 100%;
+
+            max-width: 700px;
+
+            margin: auto;
+
+            padding: 20px 14px;
+        }
+
+
+        /* =========================
+           CARD SELEÇÃO
+        ========================= */
+
+        .selecao-card {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 18px;
+
+            border: 1px solid #d1d5db;
+
+            box-shadow:
+                0 14px 30px rgba(15,23,42,.10);
+
+            margin-bottom: 18px;
+        }
+
+        .selecao-titulo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            font-weight: 700;
+
+            font-size: .95rem;
+
+            margin-bottom: 10px;
+        }
+
+        select {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border-radius: 13px;
+
+            border: 1px solid #d1d5db;
+
+            background: #f9fafb;
+
+            font-family: inherit;
+
+            font-size: .9rem;
+
+            color: #111827;
+
+            outline: none;
+
+            cursor: pointer;
+        }
+
+        select:focus {
+
+            border-color: #2563eb;
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px rgba(37,99,235,.10);
+        }
+
+
+        /* =========================
+           EQUIPAMENTO
+        ========================= */
+
+        .equipamento-card {
+
+            background: white;
+
+            border-radius: 22px;
+
+            overflow: hidden;
+
+            border: 1px solid #d1d5db;
+
+            box-shadow:
+                0 16px 35px rgba(15,23,42,.12);
+
+            margin-bottom: 18px;
+        }
+
+        .equipamento-header {
+
+            padding: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #ffffff
+                );
+
+            border-bottom:
+                1px solid #e5e7eb;
+        }
+
+        .equipamento-nome {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            font-size: 1.1rem;
+
+            font-weight: 700;
+        }
+
+        .equipamento-icone {
+
+            width: 48px;
+            height: 48px;
+
+            border-radius: 15px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 1.6rem;
+
+            background: #dbeafe;
+        }
+
+        .equipamento-info {
+
+            margin-top: 7px;
+
+            color: #6b7280;
+
+            font-size: .76rem;
+        }
+
+
+        /* =========================
+           SEÇÕES
+        ========================= */
+
+        .historico-secao {
+
+            padding: 16px;
+        }
+
+        .secao-titulo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            font-size: .9rem;
+
+            font-weight: 700;
+
+            margin-bottom: 12px;
+        }
+
+        .contador {
+
+            margin-left: auto;
+
+            background: #e5e7eb;
+
+            color: #374151;
+
+            padding: 3px 8px;
+
+            border-radius: 999px;
+
+            font-size: .68rem;
+
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           RESERVA
+        ========================= */
+
+        .reserva {
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 14px;
+
+            padding: 12px;
+
+            margin-bottom: 9px;
+
+            background: #fafafa;
+        }
+
+        .reserva-top {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 8px;
+        }
+
+        .professor {
+
+            font-weight: 700;
+
+            font-size: .82rem;
+        }
+
+        .data {
+
+            color: #6b7280;
+
+            font-size: .7rem;
+        }
+
+        .reserva-detalhes {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 6px;
+        }
+
+        .tag {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+            padding: 5px 9px;
+
+            border-radius: 999px;
+
+            background: #eff6ff;
+
+            color: #1d4ed8;
+
+            font-size: .68rem;
+
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           OCORRÊNCIA
+        ========================= */
+
+        .ocorrencia {
+
+            border: 1px solid #fecaca;
+
+            background: #fff7f7;
+
+            border-radius: 14px;
+
+            padding: 13px;
+
+            margin-bottom: 9px;
+        }
+
+        .ocorrencia-top {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 8px;
+
+            margin-bottom: 8px;
+        }
+
+        .ocorrencia-professor {
+
+            font-size: .8rem;
+
+            font-weight: 700;
+
+            color: #991b1b;
+        }
+
+        .ocorrencia-data {
+
+            font-size: .68rem;
+
+            color: #6b7280;
+        }
+
+        .ocorrencia-descricao {
+
+            font-size: .78rem;
+
+            line-height: 1.5;
+
+            color: #374151;
+
+            background: white;
+
+            border-radius: 10px;
+
+            padding: 9px;
+
+            border: 1px solid #fee2e2;
+        }
+
+
+        /* =========================
+           VAZIO
+        ========================= */
+
+        .vazio {
+
+            padding: 18px;
+
+            border-radius: 14px;
+
+            background: #f9fafb;
+
+            border: 1px dashed #d1d5db;
+
+            color: #6b7280;
+
+            text-align: center;
+
+            font-size: .76rem;
+        }
+
+
+        /* =========================
+           CARREGANDO
+        ========================= */
+
+        .carregando {
+
+            text-align: center;
+
+            padding: 35px;
+
+            color: #6b7280;
+
+            font-size: .85rem;
+        }
+
+
+        /* =========================
+           ERRO
+        ========================= */
+
+        .erro {
+
+            background: #fee2e2;
+
+            border: 1px solid #fecaca;
+
+            color: #991b1b;
+
+            padding: 14px;
+
+            border-radius: 14px;
+
+            font-size: .8rem;
+
+            line-height: 1.5;
+        }
+
+
+        /* =========================
+           RODAPÉ
+        ========================= */
+
+        footer {
+
+            position: fixed;
+
+            bottom: 0;
+
+            width: 100%;
+
+            padding: 10px;
+
+            background: white;
+
+            border-top:
+                1px solid #d1d5db;
+
+            text-align: center;
+
+            color: #6b7280;
+
+            font-size: .75rem;
+
+            z-index: 50;
+        }
+
+    </style>
+</head>
+
+<body>
+
+
+<header>
+
+    <div class="header-top">
+
+        <button
+            class="btn-voltar"
+            onclick="voltarMenu()"
+            title="Voltar para o menu"
+        >
+            ←
+        </button>
+
+
+        <div class="titulo-header">
+
+            <h1>
+                Histórico dos Equipamentos
+            </h1>
+
+            <p>
+                Reservas e registros de uso
+            </p>
+
+        </div>
+
+
+        <button
+            class="btn-atualizar"
+            onclick="carregarHistorico()"
+            title="Atualizar"
+        >
+            🔄
+        </button>
+
+    </div>
+
+</header>
+
+
+<main>
+
+
+    <!-- =========================
+         SELEÇÃO DO EQUIPAMENTO
+    ========================= -->
+
+    <div class="selecao-card">
+
+        <div class="selecao-titulo">
+
+            📽️
+
+            <span>
+                Escolha o equipamento
+            </span>
+
+        </div>
+
+
+        <select
+            id="equipamento"
+            onchange="carregarHistorico()"
+        >
+
+            <option value="">
+                Carregando equipamentos...
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- =========================
+         HISTÓRICO
+    ========================= -->
+
+    <div id="resultado">
+
+        <div class="carregando">
+
+            ⏳ Carregando...
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+<footer>
+
+    ⚙️ EEMTI DRAGÃO DO MAR - ⚡ D.S.Montenegro
+
+</footer>
+
+
+<script>
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SB_URL =
+    "https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+const SB_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+
+const supabaseClient =
+    supabase.createClient(
+        SB_URL,
+        SB_KEY
+    );
+
+
+/* =========================================================
+   VOLTAR
+========================================================= */
+
+function voltarMenu() {
+
+    window.location.href =
+        "menu.html";
+
+}
+
+
+/* =========================================================
+   ÍCONE
+========================================================= */
+
+function getIcone(nome) {
+
+    const n =
+        (nome || "").toLowerCase();
+
+    if (n.includes("notebook"))
+        return "💻";
+
+    if (n.includes("projetor"))
+        return "📽️";
+
+    if (n === "tv")
+        return "📺";
+
+    return "📦";
+}
+
+
+/* =========================================================
+   FORMATAR DATA
+========================================================= */
+
+function formatarData(data) {
+
+    if (!data)
+        return "-";
+
+    const d =
+        new Date(data + "T00:00:00");
+
+    return d.toLocaleDateString(
+        "pt-BR"
+    );
+}
+
+
+/* =========================================================
+   FORMATAR DATA/HORA
+========================================================= */
+
+function formatarDataHora(data) {
+
+    if (!data)
+        return "-";
+
+    const d =
+        new Date(data);
+
+    return d.toLocaleString(
+        "pt-BR",
+        {
+            dateStyle: "short",
+            timeStyle: "short"
+        }
+    );
+}
+
+
+/* =========================================================
+   CARREGAR EQUIPAMENTOS
+========================================================= */
+
+async function carregarEquipamentos() {
+
+    const select =
+        document.getElementById(
+            "equipamento"
+        );
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("itens_escola")
+        .select(
+            "id,nome,inoperante,ordem_visual"
+        )
+        .order(
+            "ordem_visual",
+            {
+                ascending: true
+            }
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        select.innerHTML = `
+            <option value="">
+                Erro ao carregar
+            </option>
+        `;
+
+        document.getElementById(
+            "resultado"
+        ).innerHTML = `
+            <div class="erro">
+                ❌ Não foi possível carregar
+                os equipamentos.
+                <br><br>
+                ${error.message}
+            </div>
+        `;
+
+        return;
+    }
+
+
+    select.innerHTML = `
+        <option value="">
+            Selecione um equipamento
+        </option>
+    `;
+
+
+    /*
+       Aqui mostramos somente equipamentos:
+       Projetor
+       Notebook
+       TV
+    */
+
+    const equipamentos =
+        (data || []).filter(item => {
+
+            const nome =
+                (item.nome || "")
+                .toLowerCase();
+
+            return (
+                nome.includes("projetor") ||
+                nome.includes("notebook") ||
+                nome === "tv"
+            );
+
+        });
+
+
+    equipamentos.forEach(item => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value =
+            item.id;
+
+        option.textContent =
+            item.nome +
+            (
+                item.inoperante
+                    ? " ⚠️ MANUTENÇÃO"
+                    : ""
+            );
+
+        select.appendChild(
+            option
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   CARREGAR HISTÓRICO
+========================================================= */
+
+async function carregarHistorico() {
+
+    const itemId =
+        document.getElementById(
+            "equipamento"
+        ).value;
+
+    const resultado =
+        document.getElementById(
+            "resultado"
+        );
+
+
+    if (!itemId) {
+
+        resultado.innerHTML = `
+            <div class="carregando">
+                👆 Selecione um equipamento
+                para visualizar o histórico.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    resultado.innerHTML = `
+        <div class="carregando">
+            ⏳ Carregando histórico...
+        </div>
+    `;
+
+
+    /* =====================================================
+       BUSCAR EQUIPAMENTO
+    ===================================================== */
+
+    const {
+        data: item,
+        error: erroItem
+    } =
+        await supabaseClient
+            .from("itens_escola")
+            .select("*")
+            .eq("id", itemId)
+            .single();
+
+
+    if (erroItem) {
+
+        resultado.innerHTML = `
+            <div class="erro">
+                ❌ Erro ao carregar equipamento:
+                ${erroItem.message}
+            </div>
+        `;
+
+        return;
+    }
+
+
+    /* =====================================================
+       BUSCAR RESERVAS
+    ===================================================== */
+
+    const {
+        data: reservas,
+        error: erroReservas
+    } =
+        await supabaseClient
+            .from("reservas_recursos")
+            .select("*")
+            .eq("item_id", itemId)
+            .order(
+                "data_reserva",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (erroReservas) {
+
+        console.error(
+            "Erro reservas:",
+            erroReservas
+        );
+
+    }
+
+
+    /* =====================================================
+       BUSCAR REGISTROS DE USO
+    ===================================================== */
+
+    const {
+        data: registros,
+        error: erroRegistros
+    } =
+        await supabaseClient
+            .from("registros_uso")
+            .select("*")
+            .eq("item_id", itemId)
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (erroRegistros) {
+
+        console.error(
+            "Erro registros:",
+            erroRegistros
+        );
+
+    }
+
+
+    /* =====================================================
+       MONTAR HTML
+    ===================================================== */
+
+    let html = `
+
+        <div class="equipamento-card">
+
+            <div class="equipamento-header">
+
+                <div class="equipamento-nome">
+
+                    <div class="equipamento-icone">
+                        ${getIcone(item.nome)}
+                    </div>
+
+                    <div>
+
+                        ${item.nome}
+
+                        <div class="equipamento-info">
+                            Histórico completo de utilização
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESERVAS -->
+
+            <div class="historico-secao">
+
+                <div class="secao-titulo">
+
+                    📋
+
+                    <span>
+                        Histórico de reservas
+                    </span>
+
+                    <span class="contador">
+                        ${(reservas || []).length}
+                    </span>
+
+                </div>
+    `;
+
+
+    /* =====================================================
+       RESERVAS
+    ===================================================== */
+
+    if (!reservas || reservas.length === 0) {
+
+        html += `
+            <div class="vazio">
+                📭 Nenhuma reserva registrada
+                para este equipamento.
+            </div>
+        `;
+
+    } else {
+
+        reservas.forEach(reserva => {
+
+            const turno =
+                reserva.turno === "noturno"
+                    ? "🌙 Noturno"
+                    : "☀️ Integral";
+
+
+            html += `
+
+                <div class="reserva">
+
+                    <div class="reserva-top">
+
+                        <div class="professor">
+
+                            👤
+                            ${reserva.nome_professor || "Professor não informado"}
+
+                        </div>
+
+                        <div class="data">
+
+                            ${formatarData(
+                                reserva.data_reserva
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="reserva-detalhes">
+
+                        <span class="tag">
+
+                            ⏱️
+                            ${reserva.tempo_aula
+                                ? reserva.tempo_aula + "º Tempo"
+                                : "Tempo não informado"
+                            }
+
+                        </span>
+
+
+                        <span class="tag">
+
+                            🏫
+                            ${reserva.turma_local || "Não informado"}
+
+                        </span>
+
+
+                        <span class="tag">
+
+                            ${turno}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+    }
+
+
+    /* =====================================================
+       REGISTROS DE USO
+    ===================================================== */
+
+    html += `
+
+            </div>
+
+
+            <div class="historico-secao">
+
+                <div class="secao-titulo">
+
+                    ⚠️
+
+                    <span>
+                        Registros de uso / ocorrências
+                    </span>
+
+                    <span class="contador">
+                        ${(registros || []).length}
+                    </span>
+
+                </div>
+
+    `;
+
+
+    if (!registros || registros.length === 0) {
+
+        html += `
+            <div class="vazio">
+                ✅ Nenhuma ocorrência registrada
+                para este equipamento.
+            </div>
+        `;
+
+    } else {
+
+        registros.forEach(registro => {
+
+            html += `
+
+                <div class="ocorrencia">
+
+                    <div class="ocorrencia-top">
+
+                        <div class="ocorrencia-professor">
+
+                            👤
+                            ${registro.nome_professor || "Professor"}
+
+                        </div>
+
+                        <div class="ocorrencia-data">
+
+                            ${formatarDataHora(
+                                registro.created_at
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="ocorrencia-descricao">
+
+                        ${escapeHTML(
+                            registro.descricao
+                        )}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+    }
+
+
+    html += `
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    resultado.innerHTML =
+        html;
+
+}
+
+
+/* =========================================================
+   PROTEÇÃO CONTRA HTML NA DESCRIÇÃO
+========================================================= */
+
+function escapeHTML(texto) {
+
+    if (!texto)
+        return "";
+
+    return texto
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+async function iniciar() {
+
+    await carregarEquipamentos();
+
+    document.getElementById(
+        "resultado"
+    ).innerHTML = `
+        <div class="carregando">
+            👆 Selecione um equipamento
+            para visualizar o histórico.
+        </div>
+    `;
+
+}
+
+iniciar();
+
+</script>
+
+</body>
+</html>
+

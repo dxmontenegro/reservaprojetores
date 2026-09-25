@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ocorrências - EEMTI Dragão do Mar</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        :root {
+            --azul: #2563eb;
+            --azul-dark: #1d4ed8;
+            --verde: #16a34a;
+            --vermelho: #dc2626;
+            --laranja: #ea580c;
+
+            --escuro: #0f172a;
+            --texto: #334155;
+            --cinza: #64748b;
+            --fundo: #f1f5f9;
+            --branco: #ffffff;
+
+            --borda: rgba(148,163,184,.35);
+
+            --sombra:
+                0 16px 40px rgba(15,23,42,.12);
+
+            --raio: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            font-family:
+                "Inter",
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #dbeafe 0,
+                    #f1f5f9 42%,
+                    #e2e8f0 100%
+                );
+
+            color: var(--escuro);
+
+            padding-bottom: 70px;
+        }
+
+
+        /* =========================
+           CABEÇALHO
+        ========================= */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            background: rgba(248,250,252,.94);
+
+            backdrop-filter: blur(15px);
+
+            border-bottom:
+                1px solid rgba(203,213,225,.8);
+
+            box-shadow:
+                0 8px 25px rgba(15,23,42,.10);
+
+            padding: 14px;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+        }
+
+
+        .titulo-area {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .titulo-icone {
+            width: 44px;
+            height: 44px;
+
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef4444,
+                    #f97316
+                );
+
+            color: white;
+
+            font-size: 1.35rem;
+
+            box-shadow:
+                0 8px 20px rgba(239,68,68,.35);
+        }
+
+        .titulo {
+            margin: 0;
+
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .subtitulo {
+            margin: 3px 0 0;
+
+            color: var(--cinza);
+
+            font-size: .76rem;
+        }
+
+
+        .acoes-header {
+            display: flex;
+            gap: 7px;
+        }
+
+
+        .btn-header {
+            border: 1px solid var(--borda);
+
+            background: white;
+
+            color: #334155;
+
+            padding: 8px 12px;
+
+            border-radius: 999px;
+
+            cursor: pointer;
+
+            font-size: .78rem;
+
+            font-weight: 600;
+
+            transition: .18s;
+        }
+
+        .btn-header:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+
+        /* =========================
+           CONTEÚDO
+        ========================= */
+
+        main {
+            width: 100%;
+            max-width: 900px;
+
+            margin: auto;
+
+            padding: 18px 13px;
+        }
+
+
+        .barra-resumo {
+            background: rgba(255,255,255,.86);
+
+            border:
+                1px solid var(--borda);
+
+            border-radius: var(--raio);
+
+            padding: 15px;
+
+            box-shadow: var(--sombra);
+
+            margin-bottom: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+        }
+
+
+        .resumo-texto strong {
+            display: block;
+
+            font-size: .95rem;
+        }
+
+        .resumo-texto span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: var(--cinza);
+
+            font-size: .76rem;
+        }
+
+
+        .contador {
+            min-width: 44px;
+            height: 44px;
+
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+
+        /* =========================
+           CARREGANDO
+        ========================= */
+
+        .carregando {
+            background: white;
+
+            border-radius: var(--raio);
+
+            padding: 35px 20px;
+
+            text-align: center;
+
+            box-shadow: var(--sombra);
+
+            color: var(--cinza);
+
+            font-size: .88rem;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+
+            border-radius: 50%;
+
+            border:
+                3px solid #dbeafe;
+
+            border-top-color:
+                var(--azul);
+
+            animation:
+                girar .8s linear infinite;
+
+            margin:
+                0 auto 12px;
+        }
+
+        @keyframes girar {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        /* =========================
+           OCORRÊNCIA
+        ========================= */
+
+        .ocorrencia {
+
+            background: white;
+
+            border:
+                1px solid var(--borda);
+
+            border-radius: var(--raio);
+
+            box-shadow: var(--sombra);
+
+            margin-bottom: 13px;
+
+            overflow: hidden;
+
+            animation:
+                aparecer .25s ease;
+        }
+
+        @keyframes aparecer {
+
+            from {
+                opacity: 0;
+                transform: translateY(7px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        .ocorrencia-topo {
+
+            padding: 14px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 10px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+        }
+
+
+        .equipamento {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            min-width: 0;
+        }
+
+
+        .icone-equipamento {
+
+            width: 45px;
+            height: 45px;
+
+            flex-shrink: 0;
+
+            border-radius: 14px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background: #eff6ff;
+
+            font-size: 1.35rem;
+
+            border:
+                1px solid #dbeafe;
+        }
+
+
+        .nome-equipamento {
+
+            font-weight: 700;
+
+            font-size: .95rem;
+
+            color: #0f172a;
+        }
+
+
+        .equipamento-id {
+
+            margin-top: 3px;
+
+            font-size: .68rem;
+
+            color: #94a3b8;
+        }
+
+
+        .data {
+
+            flex-shrink: 0;
+
+            background: #f8fafc;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius: 999px;
+
+            padding: 5px 9px;
+
+            color: #64748b;
+
+            font-size: .67rem;
+        }
+
+
+        .ocorrencia-corpo {
+
+            padding: 14px;
+        }
+
+
+        .rotulo {
+
+            color: #64748b;
+
+            font-size: .68rem;
+
+            text-transform: uppercase;
+
+            letter-spacing: .05em;
+
+            font-weight: 700;
+
+            margin-bottom: 6px;
+        }
+
+
+        .descricao {
+
+            color: #334155;
+
+            font-size: .88rem;
+
+            line-height: 1.55;
+
+            white-space: pre-wrap;
+
+            word-break: break-word;
+        }
+
+
+        .ocorrencia-rodape {
+
+            padding: 10px 14px;
+
+            background: #f8fafc;
+
+            border-top:
+                1px solid #e5e7eb;
+
+            color: #64748b;
+
+            font-size: .72rem;
+        }
+
+
+        .usuario {
+
+            color: #334155;
+
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           VAZIO
+        ========================= */
+
+        .vazio {
+
+            background: white;
+
+            border-radius: var(--raio);
+
+            box-shadow: var(--sombra);
+
+            padding: 45px 20px;
+
+            text-align: center;
+        }
+
+
+        .vazio-icon {
+
+            font-size: 2.4rem;
+
+            margin-bottom: 10px;
+        }
+
+
+        .vazio strong {
+
+            display: block;
+
+            font-size: .95rem;
+        }
+
+
+        .vazio span {
+
+            display: block;
+
+            color: var(--cinza);
+
+            font-size: .78rem;
+
+            margin-top: 5px;
+        }
+
+
+        /* =========================
+           ERRO
+        ========================= */
+
+        .erro {
+
+            background: #fff1f2;
+
+            border:
+                1px solid #fecdd3;
+
+            color: #9f1239;
+
+            border-radius: var(--raio);
+
+            padding: 20px;
+
+            text-align: center;
+
+            font-size: .84rem;
+
+            line-height: 1.5;
+        }
+
+
+        /* =========================
+           RODAPÉ
+        ========================= */
+
+        footer {
+
+            position: fixed;
+
+            left: 0;
+            bottom: 0;
+
+            width: 100%;
+
+            background: white;
+
+            border-top:
+                1px solid var(--borda);
+
+            padding: 10px;
+
+            text-align: center;
+
+            color: #64748b;
+
+            font-size: .72rem;
+
+            z-index: 90;
+        }
+
+
+        @media(max-width: 520px) {
+
+            .header-inner {
+                align-items: flex-start;
+            }
+
+            .titulo-icone {
+                width: 39px;
+                height: 39px;
+                font-size: 1.1rem;
+            }
+
+            .titulo {
+                font-size: .92rem;
+            }
+
+            .subtitulo {
+                font-size: .68rem;
+            }
+
+            .btn-header {
+                padding: 7px 9px;
+                font-size: .7rem;
+            }
+
+            .ocorrencia-topo {
+                align-items: flex-start;
+            }
+
+            .data {
+                font-size: .6rem;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<header>
+
+    <div class="header-inner">
+
+        <div class="titulo-area">
+
+            <div class="titulo-icone">
+                ⚠️
+            </div>
+
+            <div>
+
+                <h1 class="titulo">
+                    Ocorrências
+                </h1>
+
+                <p class="subtitulo">
+                    Registro de problemas e observações dos equipamentos
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="acoes-header">
+
+            <button
+                class="btn-header"
+                onclick="voltarMenu()"
+            >
+                ← Menu
+            </button>
+
+            <button
+                class="btn-header"
+                id="btn-atualizar"
+                onclick="carregarOcorrencias()"
+            >
+                🔄 Atualizar
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+
+    <div class="barra-resumo">
+
+        <div class="resumo-texto">
+
+            <strong>
+                Ocorrências registradas
+            </strong>
+
+            <span>
+                Equipamento, descrição e usuário responsável pelo registro.
+            </span>
+
+        </div>
+
+
+        <div
+            class="contador"
+            id="contador"
+        >
+            0
+        </div>
+
+    </div>
+
+
+    <div id="lista-ocorrencias">
+
+        <div class="carregando">
+
+            <div class="spinner"></div>
+
+            Carregando ocorrências...
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+<footer>
+
+    ⚙️ EEMTI DRAGÃO DO MAR - ⚡ D.S.Montenegro
+
+</footer>
+
+
+<script>
+
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SB_URL =
+    "https://bdjqajzhlkdfagdfknmh.supabase.co";
+
+
+const SB_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanFhanpobGtkZmFnZGZrbm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NTA5MDcsImV4cCI6MjA4NjMyNjkwN30.hxh4adeSNM7FazeNkinwPrJEZdxsZkhtPTB5zU6eub0";
+
+
+const supabaseClient =
+    supabase.createClient(
+        SB_URL,
+        SB_KEY
+    );
+
+
+/* =====================================================
+   PROTEÇÃO CONTRA HTML
+===================================================== */
+
+function escaparHTML(valor) {
+
+    if (
+        valor === null ||
+        valor === undefined
+    ) {
+        return "";
+    }
+
+    return String(valor)
+
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =====================================================
+   ÍCONE DO EQUIPAMENTO
+===================================================== */
+
+function getIcone(nome) {
+
+    if (!nome) {
+        return "📦";
+    }
+
+    const texto =
+        nome.toLowerCase();
+
+
+    if (texto.includes("projetor")) {
+        return "📽️";
+    }
+
+    if (texto.includes("notebook")) {
+        return "💻";
+    }
+
+    if (
+        texto.includes("tv") ||
+        texto.includes("televis")
+    ) {
+        return "📺";
+    }
+
+    if (
+        texto.includes("informática") ||
+        texto.includes("informatica")
+    ) {
+        return "🖥️";
+    }
+
+    if (texto.includes("ciência")) {
+        return "🔬";
+    }
+
+    if (texto.includes("biblioteca")) {
+        return "📚";
+    }
+
+    return "📦";
+}
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+function formatarData(data) {
+
+    if (!data) {
+        return "Data não informada";
+    }
+
+
+    const d =
+        new Date(data);
+
+
+    if (Number.isNaN(d.getTime())) {
+        return "Data não informada";
+    }
+
+
+    return d.toLocaleDateString(
+        "pt-BR",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        }
+    )
+    +
+    " "
+    +
+    d.toLocaleTimeString(
+        "pt-BR",
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
+
+/* =====================================================
+   NOME DO PROFESSOR
+===================================================== */
+
+function obterProfessor(registro) {
+
+    return (
+
+        registro.nome_professor ||
+
+        registro.professor_nome ||
+
+        registro.nome_usuario ||
+
+        registro.usuario_nome ||
+
+        registro.professor ||
+
+        registro.email ||
+
+        "Usuário não informado"
+
+    );
+}
+
+
+/* =====================================================
+   DESCRIÇÃO
+===================================================== */
+
+function obterDescricao(registro) {
+
+    return (
+
+        registro.descricao ||
+
+        registro.observacao ||
+
+        registro.observacao_uso ||
+
+        registro.relato ||
+
+        registro.motivo ||
+
+        registro.descricao_observacao ||
+
+        "Sem descrição"
+
+    );
+}
+
+
+/* =====================================================
+   CARREGAR OCORRÊNCIAS
+===================================================== */
+
+async function carregarOcorrencias() {
+
+
+    const lista =
+        document.getElementById(
+            "lista-ocorrencias"
+        );
+
+
+    const contador =
+        document.getElementById(
+            "contador"
+        );
+
+
+    const botao =
+        document.getElementById(
+            "btn-atualizar"
+        );
+
+
+    botao.disabled = true;
+
+    botao.innerText =
+        "⏳ Carregando";
+
+
+    lista.innerHTML = `
+
+        <div class="carregando">
+
+            <div class="spinner"></div>
+
+            Carregando ocorrências...
+
+        </div>
+
+    `;
+
+
+    try {
+
+
+        /* -----------------------------------------
+           1. BUSCA OS REGISTROS
+        ----------------------------------------- */
+
+        const {
+            data: registros,
+            error: erroRegistros
+        } = await supabaseClient
+
+            .from("registros_uso")
+
+            .select("*")
+
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+        if (erroRegistros) {
+
+            throw erroRegistros;
+
+        }
+
+
+        /* -----------------------------------------
+           2. BUSCA OS EQUIPAMENTOS
+        ----------------------------------------- */
+
+        const {
+            data: itens,
+            error: erroItens
+        } = await supabaseClient
+
+            .from("itens_escola")
+
+            .select(
+                "id, nome"
+            );
+
+
+        if (erroItens) {
+
+            throw erroItens;
+
+        }
+
+
+        /* -----------------------------------------
+           3. MAPA DOS EQUIPAMENTOS
+        ----------------------------------------- */
+
+        const equipamentos = {};
+
+
+        (itens || []).forEach(
+            item => {
+
+                equipamentos[
+                    String(item.id)
+                ] = item.nome;
+
+            }
+        );
+
+
+        const registrosValidos =
+            registros || [];
+
+
+        contador.innerText =
+            registrosValidos.length;
+
+
+        /* -----------------------------------------
+           4. NENHUM REGISTRO
+        ----------------------------------------- */
+
+        if (
+            registrosValidos.length === 0
+        ) {
+
+            lista.innerHTML = `
+
+                <div class="vazio">
+
+                    <div class="vazio-icon">
+                        ✅
+                    </div>
+
+                    <strong>
+                        Nenhuma ocorrência registrada
+                    </strong>
+
+                    <span>
+                        Ainda não existem ocorrências
+                        cadastradas no sistema.
+                    </span>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /* -----------------------------------------
+           5. DESENHA OS REGISTROS
+        ----------------------------------------- */
+
+        lista.innerHTML =
+            registrosValidos.map(
+                registro => {
+
+
+                    /*
+                     * ESTE É O PONTO MAIS IMPORTANTE:
+                     *
+                     * O registro possui item_id.
+                     *
+                     * Convertemos para String para
+                     * evitar problemas caso um lado
+                     * seja número e o outro string.
+                     */
+
+                    const itemId =
+                        registro.item_id;
+
+
+                    const nomeEquipamento =
+                        equipamentos[
+                            String(itemId)
+                        ]
+                        ||
+                        registro.nome_equipamento
+                        ||
+                        registro.equipamento
+                        ||
+                        "Equipamento não informado";
+
+
+                    const descricao =
+                        obterDescricao(
+                            registro
+                        );
+
+
+                    const professor =
+                        obterProfessor(
+                            registro
+                        );
+
+
+                    const data =
+                        registro.created_at
+                        ||
+                        registro.data_registro
+                        ||
+                        registro.data;
+
+
+                    return `
+
+                        <article
+                            class="ocorrencia"
+                        >
+
+
+                            <div
+                                class="ocorrencia-topo"
+                            >
+
+
+                                <div
+                                    class="equipamento"
+                                >
+
+
+                                    <div
+                                        class="icone-equipamento"
+                                    >
+
+                                        ${getIcone(
+                                            nomeEquipamento
+                                        )}
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <div
+                                            class="nome-equipamento"
+                                        >
+
+                                            ${escaparHTML(
+                                                nomeEquipamento
+                                            )}
+
+                                        </div>
+
+
+                                        ${
+                                            itemId
+                                            ?
+                                            `
+                                            <div
+                                                class="equipamento-id"
+                                            >
+                                                ID do equipamento:
+                                                ${escaparHTML(itemId)}
+                                            </div>
+                                            `
+                                            :
+                                            ""
+                                        }
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="data">
+
+                                    ${formatarData(
+                                        data
+                                    )}
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div
+                                class="ocorrencia-corpo"
+                            >
+
+
+                                <div class="rotulo">
+
+                                    Observação registrada
+
+                                </div>
+
+
+                                <div class="descricao">
+
+                                    ${escaparHTML(
+                                        descricao
+                                    )}
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div
+                                class="ocorrencia-rodape"
+                            >
+
+                                👤 Registrado por:
+
+                                <span
+                                    class="usuario"
+                                >
+
+                                    ${escaparHTML(
+                                        professor
+                                    )}
+
+                                </span>
+
+                            </div>
+
+
+                        </article>
+
+                    `;
+
+                }
+            ).join("");
+
+
+    } catch (erro) {
+
+
+        console.error(
+            "Erro ao carregar ocorrências:",
+            erro
+        );
+
+
+        lista.innerHTML = `
+
+            <div class="erro">
+
+                ⚠️
+                <strong>
+                    Não foi possível carregar as ocorrências.
+                </strong>
+
+                <br><br>
+
+                ${escaparHTML(
+                    erro.message ||
+                    "Erro desconhecido."
+                )}
+
+            </div>
+
+        `;
+
+    } finally {
+
+        botao.disabled = false;
+
+        botao.innerText =
+            "🔄 Atualizar";
+
+    }
+
+}
+
+
+/* =====================================================
+   VOLTAR AO MENU
+===================================================== */
+
+function voltarMenu() {
+
+    /*
+     * Se menu.html estiver na mesma pasta,
+     * esta função retorna para ele.
+     */
+
+    window.location.href =
+        "menu.html";
+
+}
+
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        carregarOcorrencias();
+
+    }
+);
+
+</script>
+
+
+</body>
+</html>
+
